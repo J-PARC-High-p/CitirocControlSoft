@@ -1,0 +1,9 @@
+EASIROC:
+  Capacitor HG PA Fdbck: 200fF
+  Capacitor LG PA Fdbck: 200fF
+  Time Constant HG Shaper: 50ns
+  Time Constant LG Shaper: 50ns
+  DAC code: 880
+High Gain Channel: 0
+Probe Channel: 50
+Probe: Out_fs
