@@ -5,6 +5,7 @@
 #include<sstream>
 #include<cstdio>
 #include<algorithm>
+#include<math.h>
 
 static const std::string class_name = "configLoader";
 
@@ -212,7 +213,7 @@ configLoader::initialize_other_register()
   // Read slow control
   {
     const std::string name = "High Gain Channel";
-    Register cont = {8, msb2lsb, false, {0}};
+    Register cont = {32, msb2lsb, false, {0}};
     m_otherreg_map.insert(std::make_pair(name, cont));
   }
 
@@ -318,7 +319,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: Discriminator";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -339,7 +340,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: Discriminator_t";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -353,7 +354,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: 4b_dac";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -367,7 +368,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: 4b_dac_t";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -376,10 +377,10 @@ configLoader::initialize_slowcontrol_register()
     const std::string name = "Discriminator Mask";
     Register cont = {1, lsb2msb, true, 
 		     {
-		       1, 1, 1, 1, 1, 1, 1, 1,
-		       1, 1, 1, 1, 1, 1, 1, 1,
-		       1, 1, 1, 1, 1, 1, 1, 1,
-		       1, 1, 1, 1, 1, 1, 1, 1
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0
 		     }};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
@@ -387,7 +388,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: HG T&H(Widlar SCA)";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -401,7 +402,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: LG T&H(Widlar SCA)";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -422,7 +423,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: HG Pdet";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -436,7 +437,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: LG Pdet";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -478,7 +479,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: Fast Shapers Follower";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -492,14 +493,14 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: Fast Shaper";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "PP: Low Gain Slow Shaper";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -513,14 +514,14 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "Time Constant LG Shaper";
-    Register cont = {3, lsb2msb, true,  {m_reg_alias["87.5ns"]}};
+    Register cont = {3, lsb2msb, true,  {m_reg_alias["12.5ns"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "PP: High Gain Slow Shaper";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -534,7 +535,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "Time Constant HG Shaper";
-    Register cont = {3, lsb2msb, true,  {m_reg_alias["87.5ns"]}};
+    Register cont = {3, lsb2msb, true,  {m_reg_alias["12.5ns"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -548,7 +549,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: High Gain PreAmplifier";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -562,7 +563,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: Low Gain PreAmplifier";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -599,10 +600,10 @@ configLoader::initialize_slowcontrol_register()
     const std::string name = "Input 8-bit DAC";
     Register cont = {9, lsb2msb, false, 
 		     {
-		       0, 0, 0, 0, 0, 0, 0, 0,
-		       0, 0, 0, 0, 0, 0, 0, 0,
-		       0, 0, 0, 0, 0, 0, 0, 0,
-		       0, 0, 0, 0, 0, 0, 0, 0
+		       256, 256, 256, 256, 256, 256, 256, 256,
+		       256, 256, 256, 256, 256, 256, 256, 256,
+		       256, 256, 256, 256, 256, 256, 256, 256,
+		       256, 256, 256, 256, 256, 256, 256, 256
 		     }};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
@@ -623,7 +624,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: Temp";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -637,7 +638,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: BandGap";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -658,7 +659,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: DAC1";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -672,7 +673,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: DAC2";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -700,7 +701,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: High Gain OTAq";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -714,7 +715,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: Low Gain OTAq";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -728,7 +729,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: Probe OTAq";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -749,7 +750,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: Val_Evt receiver";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -763,7 +764,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: Raz Chn receiver";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -966,7 +967,19 @@ configLoader::read_YAML( const std::string& filename)
     }else{
       uint32_t val = 0;
       std::stringstream reg_to_val(present_reg);
-      reg_to_val >> val;
+
+      if(present_key == "High Gain Channel"){
+	uint32_t reg_ch = 0;
+	reg_to_val >> reg_ch;
+	int channel = static_cast<int>(reg_ch);
+        int quotient = channel/8;
+	int surplus = channel%8;
+	int index = 8*quotient - surplus +7;
+	val = static_cast<uint32_t>(pow(2, index));
+      }else{
+	reg_to_val >> val;
+      }
+
       cont.reg[present_index] = val;
     }
       
