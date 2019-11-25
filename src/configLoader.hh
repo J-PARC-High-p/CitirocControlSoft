@@ -66,9 +66,14 @@ namespace veasiroc
 
     // Probe register type
     enum probeType {
-      is_out_pa_hg,  is_out_pa_lg,
-      is_out_ssh_hg, is_out_ssh_lg,
-      is_out_fs
+      is_input_dac,
+      is_out_pa_hg,
+      is_out_pa_lg,
+      is_peak_sensing_modeb_hg,
+      is_out_ssh_hg,
+      is_peak_sensing_modeb_lg,
+      is_out_ssh_lg,
+      is_out_fs,
     };
 
     configLoader( const configLoader& );

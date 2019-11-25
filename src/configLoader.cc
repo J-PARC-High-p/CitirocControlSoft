@@ -27,36 +27,66 @@ configLoader::copy_probereg()
 
   m_bit_rbcp.clear();
   m_reg_rbcp.clear();
-  auto itr_type    = m_otherreg_map.find("Probe");
-  auto itr_channel = m_otherreg_map.find("Probe Channel");
-  probeType type     =  static_cast<probeType>((itr_type->second).reg[0]);
-  uint32_t  position =  (itr_channel->second).reg[0];
+  auto itr_out_type    = m_otherreg_map.find("Probe");
+  auto itr_out_channel = m_otherreg_map.find("Probe Channel");
+  probeType out_type     =  static_cast<probeType>((itr_out_type->second).reg[0]);
+  uint32_t  out_position =  (itr_out_channel->second).reg[0];
+  auto itr_digital_type    = m_otherreg_map.find("Digital Probe");
+  auto itr_digital_channel = m_otherreg_map.find("Digital Probe Channel");
+  probeType digital_type     =  static_cast<probeType>((itr_digital_type->second).reg[0]);
+  uint32_t  digital_position =  (itr_digital_channel->second).reg[0];
+  auto itr_dac_type    = m_otherreg_map.find("DAC Probe");
+  auto itr_dac_channel = m_otherreg_map.find("DAC Probe Channel");
+  probeType dac_type     =  static_cast<probeType>((itr_dac_type->second).reg[0]);
+  uint32_t  dac_position =  (itr_dac_channel->second).reg[0];
+
   
-  switch(type){
+  switch(out_type){
   case is_out_pa_hg:
-    position = position*2;
+    out_position = 160 + out_position*2;
     break;
   case is_out_pa_lg:
-    position = position*2 +1;
+    out_position = 160 + out_position*2 +1;
     break;
   case is_out_ssh_hg:
-    position = 64 + position*2;
+    out_position = 96 + out_position;
     break;
   case is_out_ssh_lg:
-    position = 64 + position*2 +1;
+    out_position = 32 + out_position;
     break;
   case is_out_fs:
-    position = 128 + position;
+    out_position = out_position;
     break;
   default:
     break;
   }
 
-  m_bit_rbcp.resize(160);
+  switch(digital_type){
+  case is_peak_sensing_modeb_hg:
+    digital_position = 64 + digital_position;
+    break;
+  case is_peak_sensing_modeb_lg:
+    digital_position = 128 + digital_position;
+    break;
+  default:
+    break;
+  }
+
+  switch(dac_type){
+  case is_input_dac:
+    dac_position = 224 + dac_position;
+    break;
+  default:
+    break;
+  }
+
+  m_bit_rbcp.resize(256);
   for(auto itr = m_bit_rbcp.begin(); itr != m_bit_rbcp.end(); ++itr){
     *itr = false;
   }
-  m_bit_rbcp[position] = true;
+  m_bit_rbcp[out_position] = true;
+  m_bit_rbcp[digital_position] = true;
+  m_bit_rbcp[dac_position] = true;
 
   translate_bit2reg();
   reverse(m_reg_rbcp.begin(), m_reg_rbcp.end());
@@ -217,7 +247,7 @@ configLoader::initialize_other_register()
     m_otherreg_map.insert(std::make_pair(name, cont));
   }
 
-  // Probe
+  // Out_probe
   {
     // Internal
     const std::string name = "Probe Channel";
@@ -229,6 +259,36 @@ configLoader::initialize_other_register()
     // Internal
     const std::string name = "Probe";
     Register cont = {1, lsb2msb, false, {is_out_pa_hg}};
+    m_otherreg_map.insert(std::make_pair(name, cont));
+  }
+
+  // Digital_probe
+  {
+    // Internal
+    const std::string name = "Digital Probe Channel";
+    Register cont = {1, lsb2msb, false, {0}};
+    m_otherreg_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    // Internal
+    const std::string name = "Digital Probe";
+    Register cont = {1, lsb2msb, false, {is_peak_sensing_modeb_hg}};
+    m_otherreg_map.insert(std::make_pair(name, cont));
+  }
+
+  // Out_probe_dac_5V
+  {
+    // Internal
+    const std::string name = "DAC Probe Channel";
+    Register cont = {1, lsb2msb, false, {0}};
+    m_otherreg_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    // Internal
+    const std::string name = "DAC Probe";
+    Register cont = {1, lsb2msb, false, {is_input_dac}};
     m_otherreg_map.insert(std::make_pair(name, cont));
   }
 
