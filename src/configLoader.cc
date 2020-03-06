@@ -1035,7 +1035,7 @@ configLoader::read_YAML( const std::string& filename)
         int quotient = channel/8;
 	int surplus = channel%8;
 	int index = 8*quotient - surplus +7;
-	val = static_cast<uint32_t>(pow(2, index));
+	val = static_cast<uint32_t>(1<<index);
       }else{
 	reg_to_val >> val;
       }
