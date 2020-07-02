@@ -124,7 +124,7 @@ sendProbeRegister(const std::string& ip)
   veasiroc::regRbcpType reg_probe = g_conf.copy_probereg();
 
   reg_easiroc_pin.reset( kSelectSc );
-  resetProbeRegister(ip);
+  // resetProbeRegister(ip);
 
   sendProbeRegisterSub(ip, reg_probe);
 
@@ -168,7 +168,7 @@ sendReadRegister(const std::string& ip)
   veasiroc::regRbcpType reg = g_conf.copy_readreg();
 
   reg_module.set( kSelectRead );
-  resetReadRegister(ip);
+  // resetReadRegister(ip);
 
   sendReadRegisterSub(ip, reg);
 
@@ -210,7 +210,7 @@ sendSlowControl(const std::string& ip)
   veasiroc::regRbcpType reg_easiroc = g_conf.copy_screg();
 
   reg_easiroc_pin.set( kSelectSc );
-  resetSlowControl(ip);
+  // resetSlowControl(ip);
 
   sendSlowControlSub(ip, reg_easiroc);
 }

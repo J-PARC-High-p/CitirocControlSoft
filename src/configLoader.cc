@@ -658,12 +658,12 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "Input 8-bit DAC";
-    Register cont = {9, lsb2msb, false, 
+    Register cont = {9, msb2lsb, false, 
 		     {
-		       256, 256, 256, 256, 256, 256, 256, 256,
-		       256, 256, 256, 256, 256, 256, 256, 256,
-		       256, 256, 256, 256, 256, 256, 256, 256,
-		       256, 256, 256, 256, 256, 256, 256, 256
+		       1, 1, 1, 1, 1, 1, 1, 1,
+		       1, 1, 1, 1, 1, 1, 1, 1,
+		       1, 1, 1, 1, 1, 1, 1, 1,
+		       1, 1, 1, 1, 1, 1, 1, 1
 		     }};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
