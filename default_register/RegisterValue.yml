@@ -1,8 +1,8 @@
 EASIROC:
   Time Constant HG Shaper: 50.0ns
   Time Constant LG Shaper: 50.0ns
-  DAC1 code: 1023
-  DAC2 code: 220
+  DAC1 code: 0
+  DAC2 code: 0
 High Gain Channel: 31
 Probe Channel: 31
 Probe: Out_fs

@@ -234,32 +234,6 @@ sendSlowControlSub(const std::string& ip,
 				HUL::CITIROC::ASIC::kAddrSlowControlFIFO,
 				reg_slow, n_reg);
 
-  // std::cout << "bit number : " << n_reg*8 << std::endl;
-  // std::cout << "Slow control signal : " << std::endl;
-
-  // std::ios::fmtflags flagsSaved = std::cout.flags();    
-  // std::cout.setf(std::ios::hex, std::ios::basefield);
-  // std::cout.setf(std::ios::right, std::ios::adjustfield);
-  // char fillSaved = std::cout.fill('0');
-
-  // for(int i = 0; i < (n_reg/4); i++){
-  //   std::cout << std::setw(2) << static_cast<int>(reg[4*i + 3]);
-  //   std::cout << std::setw(2) << static_cast<int>(reg[4*i + 2]);
-  //   std::cout << std::setw(2) << static_cast<int>(reg[4*i + 1]);
-  //   std::cout << std::setw(2) << static_cast<int>(reg[4*i]);
-  //   std::cout << "\n";
-  // }
-
-  // std::cout << std::setw(2) << 0;
-  // std::cout << std::setw(2) << static_cast<int>(reg[n_reg]);
-  // std::cout << std::setw(2) << static_cast<int>(reg[n_reg - 1]);
-  // std::cout << std::setw(2) << static_cast<int>(reg[n_reg - 2]);
-    
-  // std::cout << std::endl;
-
-  // std::cout.flags(flagsSaved);
-  // std::cout.fill(fillSaved);
-
   reg_module.set( kStartCycle );
   sendDirectControl(ip);
 
