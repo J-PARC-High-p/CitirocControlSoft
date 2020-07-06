@@ -124,7 +124,7 @@ sendProbeRegister(const std::string& ip)
   veasiroc::regRbcpType reg_probe = g_conf.copy_probereg();
 
   reg_easiroc_pin.reset( kSelectSc );
-  resetProbeRegister(ip);
+  // resetProbeRegister(ip);
 
   sendProbeRegisterSub(ip, reg_probe);
 
@@ -168,7 +168,7 @@ sendReadRegister(const std::string& ip)
   veasiroc::regRbcpType reg = g_conf.copy_readreg();
 
   reg_module.set( kSelectRead );
-  resetReadRegister(ip);
+  // resetReadRegister(ip);
 
   sendReadRegisterSub(ip, reg);
 
@@ -210,7 +210,7 @@ sendSlowControl(const std::string& ip)
   veasiroc::regRbcpType reg_easiroc = g_conf.copy_screg();
 
   reg_easiroc_pin.set( kSelectSc );
-  resetSlowControl(ip);
+  // resetSlowControl(ip);
 
   sendSlowControlSub(ip, reg_easiroc);
 }
@@ -233,32 +233,6 @@ sendSlowControlSub(const std::string& ip,
   fpga_module.WriteModule_nByte(HUL::CITIROC::ASIC::mid,
 				HUL::CITIROC::ASIC::kAddrSlowControlFIFO,
 				reg_slow, n_reg);
-
-  // std::cout << "bit number : " << n_reg*8 << std::endl;
-  // std::cout << "Slow control signal : " << std::endl;
-
-  // std::ios::fmtflags flagsSaved = std::cout.flags();    
-  // std::cout.setf(std::ios::hex, std::ios::basefield);
-  // std::cout.setf(std::ios::right, std::ios::adjustfield);
-  // char fillSaved = std::cout.fill('0');
-
-  // for(int i = 0; i < (n_reg/4); i++){
-  //   std::cout << std::setw(2) << static_cast<int>(reg[4*i + 3]);
-  //   std::cout << std::setw(2) << static_cast<int>(reg[4*i + 2]);
-  //   std::cout << std::setw(2) << static_cast<int>(reg[4*i + 1]);
-  //   std::cout << std::setw(2) << static_cast<int>(reg[4*i]);
-  //   std::cout << "\n";
-  // }
-
-  // std::cout << std::setw(2) << 0;
-  // std::cout << std::setw(2) << static_cast<int>(reg[n_reg]);
-  // std::cout << std::setw(2) << static_cast<int>(reg[n_reg - 1]);
-  // std::cout << std::setw(2) << static_cast<int>(reg[n_reg - 2]);
-    
-  // std::cout << std::endl;
-
-  // std::cout.flags(flagsSaved);
-  // std::cout.fill(fillSaved);
 
   reg_module.set( kStartCycle );
   sendDirectControl(ip);

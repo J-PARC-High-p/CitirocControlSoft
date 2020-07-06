@@ -658,12 +658,12 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "Input 8-bit DAC";
-    Register cont = {9, lsb2msb, false, 
+    Register cont = {9, msb2lsb, false, 
 		     {
-		       256, 256, 256, 256, 256, 256, 256, 256,
-		       256, 256, 256, 256, 256, 256, 256, 256,
-		       256, 256, 256, 256, 256, 256, 256, 256,
-		       256, 256, 256, 256, 256, 256, 256, 256
+		       1, 1, 1, 1, 1, 1, 1, 1,
+		       1, 1, 1, 1, 1, 1, 1, 1,
+		       1, 1, 1, 1, 1, 1, 1, 1,
+		       1, 1, 1, 1, 1, 1, 1, 1
 		     }};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
@@ -1035,7 +1035,7 @@ configLoader::read_YAML( const std::string& filename)
         int quotient = channel/8;
 	int surplus = channel%8;
 	int index = 8*quotient - surplus +7;
-	val = static_cast<uint32_t>(pow(2, index));
+	val = static_cast<uint32_t>(1<<index);
       }else{
 	reg_to_val >> val;
       }

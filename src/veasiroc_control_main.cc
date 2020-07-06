@@ -15,6 +15,7 @@ namespace{
     {
       "-ip=", "-yaml=",
       "-sc", "-read", "-probe", "-all",
+      "-probe-off",
       "-q",
       "bad-option"
     };
@@ -24,7 +25,7 @@ namespace{
 
   enum Command
     {
-      i_sc, i_read, i_probe,
+      i_sc, i_read, i_probe, i_probe_off,
       sizeCommand
     };
 
@@ -53,7 +54,9 @@ int main(int argc, char* argv[])
     std::cout << " -probe\n";
     std::cout << "   Send probe registers\n";
     std::cout << " -all\n";
-    std::cout << "   Equal to -sc -read -probe -pede -sel\n";
+    std::cout << "   Equal to -sc -read -probe\n";
+    std::cout << " -probe-off\n";
+    std::cout << "   Reset probe registers\n";
     std::cout << " -q\n";
     std::cout << "   Quiet. Hide all the message.\n";
     std::cout << std::endl;
@@ -88,6 +91,7 @@ int main(int argc, char* argv[])
     if(exec_list[i_sc])    std::cout << " - Slow Control" << std::endl;
     if(exec_list[i_read])  std::cout << " - Read register" << std::endl;
     if(exec_list[i_probe]) std::cout << " - Probe register" << std::endl;
+    if(exec_list[i_probe_off]) std::cout << " - Reset probe register" << std::endl;
   }
   
   veasiroc::configLoader& g_conf = veasiroc::configLoader::get_instance();
@@ -95,8 +99,9 @@ int main(int argc, char* argv[])
 
   resetDirectControl(ip);
   if(exec_list[i_sc])    sendSlowControl(ip);
-  if(exec_list[i_read])  sendReadRegister(ip);
   if(exec_list[i_probe]) sendProbeRegister(ip);
+  if(exec_list[i_read])  sendReadRegister(ip);
+  if(exec_list[i_probe_off]) resetProbeRegister(ip);
   
   return 0;
 }
@@ -125,6 +130,7 @@ int parse_option(std::vector<std::string>& arg)
 	if( arg[i] == "-read")  exec_list.set( i_read  );
 	if( arg[i] == "-probe") exec_list.set( i_probe );
 	if( arg[i] == "-all")   exec_list.set();
+	if( arg[i] == "-probe-off") exec_list.set( i_probe_off );
 
 	if( arg[i] == "-q")     quiet = true;
 
