@@ -658,7 +658,8 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "Input 8-bit DAC";
-    Register cont = {9, msb2lsb, false, 
+    //    Register cont = {9, msb2lsb, false,
+    Register cont = {9, lsb2msb, false, 
 		     {
 		       1, 1, 1, 1, 1, 1, 1, 1,
 		       1, 1, 1, 1, 1, 1, 1, 1,

@@ -5,17 +5,9 @@
 
 namespace HUL{
 namespace CITIROC{
-// LED Module -------------------------------------------------------------
-namespace LED{
-  static const uint32_t mid = 0x0;
-  enum LocalAddress
-    {
-     kAddrLED = 0x000 // W/R, [7:0] select trigger line
-    };
-};
-
+// ASIC -------------------------------------------------------------------
 namespace ASIC{
-  static const uint32_t mid = 0x1;
+  static const uint32_t mid = 0x2;
   enum LocalAddress
     {
      kAddrSlowControlFIFO     = 0x000, // W, [7:0]

@@ -3,6 +3,6 @@ EASIROC:
   Time Constant LG Shaper: 50.0ns
   DAC1 code: 0
   DAC2 code: 0
-High Gain Channel: 31
-Probe Channel: 31
+High Gain Channel: 12
+Probe Channel: 12
 Probe: Out_fs
