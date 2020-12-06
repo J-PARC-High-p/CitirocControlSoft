@@ -599,7 +599,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "EN_LG_T&H(Widlar SCA)";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
