@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 {
   if(argc == 1){
     std::cout << "Usage\n";
-    std::cout << "  veasiroc_control [options...]\n\n";
+    std::cout << "  femcitiroc_control [options...]\n\n";
     std::cout << "Options:\n";
     std::cout << " -ip=xxx.yyy.zzz.aaa (Must)\n";
     std::cout << " -yaml=file-path\n";
@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
     if(exec_list[i_probe_off]) std::cout << " - Reset probe register" << std::endl;
   }
   
-  veasiroc::configLoader& g_conf = veasiroc::configLoader::get_instance();
+  femcitiroc::configLoader& g_conf = femcitiroc::configLoader::get_instance();
   for(unsigned int i = 0; i<yaml_list.size(); ++i) g_conf.read_YAML(yaml_list[i]);
 
   resetDirectControl(ip);

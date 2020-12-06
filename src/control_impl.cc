@@ -32,7 +32,7 @@ namespace{
       kStartCycle, kSelectRead
     };
   
-  std::bitset<16> reg_easiroc_pin;
+  std::bitset<16> reg_citiroc_pin;
   std::bitset<8> reg_module;
 };
 
@@ -41,16 +41,16 @@ void
 resetDirectControl(const std::string& ip)
 {
   // reset direct control registers
-  reg_easiroc_pin.set(   kRstbRead );
-  reg_easiroc_pin.set(   kRstbSr   );
-  reg_easiroc_pin.reset( kLoadSc   );
-  reg_easiroc_pin.set(   kSelectSc );
-  reg_easiroc_pin.set(   kPwrOn    );
-  reg_easiroc_pin.set(   kResetbPA  );
-  reg_easiroc_pin.set(   kValEvt   );
-  reg_easiroc_pin.reset( kRazChn   );
-  reg_easiroc_pin.set(   kRstbPSC );
-  reg_easiroc_pin.set(   kPSModeb );
+  reg_citiroc_pin.set(   kRstbRead );
+  reg_citiroc_pin.set(   kRstbSr   );
+  reg_citiroc_pin.reset( kLoadSc   );
+  reg_citiroc_pin.set(   kSelectSc );
+  reg_citiroc_pin.set(   kPwrOn    );
+  reg_citiroc_pin.set(   kResetbPA  );
+  reg_citiroc_pin.set(   kValEvt   );
+  reg_citiroc_pin.reset( kRazChn   );
+  reg_citiroc_pin.set(   kRstbPSC );
+  reg_citiroc_pin.set(   kPSModeb );
 
   reg_module.reset( kStartCycle );
   reg_module.reset( kSelectRead  );
@@ -62,10 +62,10 @@ resetDirectControl(const std::string& ip)
 void
 resetProbeRegister(const std::string& ip)
 {
-  veasiroc::configLoader& g_conf = veasiroc::configLoader::get_instance();
-  veasiroc::regRbcpType reg_null = g_conf.copy_probereg_null();
+  femcitiroc::configLoader& g_conf = femcitiroc::configLoader::get_instance();
+  femcitiroc::regRbcpType reg_null = g_conf.copy_probereg_null();
 
-  reg_easiroc_pin.reset( kSelectSc );
+  reg_citiroc_pin.reset( kSelectSc );
   sendProbeRegisterSub(ip, reg_null);
 }
 
@@ -73,10 +73,10 @@ resetProbeRegister(const std::string& ip)
 void
 resetReadRegister(const std::string& ip)
 {
-  reg_easiroc_pin.reset( kRstbRead );
+  reg_citiroc_pin.reset( kRstbRead );
   sendDirectControl(ip);
 
-  reg_easiroc_pin.set( kRstbRead );
+  reg_citiroc_pin.set( kRstbRead );
   sendDirectControl(ip);
 }
 
@@ -84,18 +84,18 @@ resetReadRegister(const std::string& ip)
 void
 resetSlowControl(const std::string& ip)
 {
-  reg_easiroc_pin.set( kSelectSc );
+  reg_citiroc_pin.set( kSelectSc );
   sendDirectControl(ip);
 
-  reg_easiroc_pin.reset( kRstbSr );
-  reg_easiroc_pin.reset( kResetbPA );
-  reg_easiroc_pin.reset( kRstbPSC );
-  sendDirectControl(ip);
+  // reg_citiroc_pin.reset( kRstbSr );
+  // reg_citiroc_pin.reset( kResetbPA );
+  // reg_citiroc_pin.reset( kRstbPSC );
+  // sendDirectControl(ip);
  
-  reg_easiroc_pin.set( kRstbSr );
-  reg_easiroc_pin.set( kResetbPA );
-  reg_easiroc_pin.set( kRstbPSC );
-  sendDirectControl(ip);
+  // reg_citiroc_pin.set( kRstbSr );
+  // reg_citiroc_pin.set( kResetbPA );
+  // reg_citiroc_pin.set( kRstbPSC );
+  // sendDirectControl(ip);
 }
 
 //_________________________________________________________________________
@@ -105,11 +105,11 @@ sendDirectControl(const std::string& ip)
   RBCP::UDPRBCP rbcp(ip, RBCP::gUdpPort, RBCP::UDPRBCP::kNoDisp);
   HUL::FPGAModule fpga_module(rbcp);
 
-  int n_reg_pin = (reg_easiroc_pin.size() + 7)/8;
+  int n_reg_pin = (reg_citiroc_pin.size() + 7)/8;
 
   fpga_module.WriteModule(HUL::CITIROC::ASIC::mid,
   			  HUL::CITIROC::ASIC::kAddrPinDirectControl,
-  			  reg_easiroc_pin.to_ulong(), n_reg_pin);
+  			  reg_citiroc_pin.to_ulong(), n_reg_pin);
 
   fpga_module.WriteModule(HUL::CITIROC::ASIC::mid,
   			  HUL::CITIROC::ASIC::kAddrCycleControl,
@@ -120,24 +120,24 @@ sendDirectControl(const std::string& ip)
 void
 sendProbeRegister(const std::string& ip)
 {
-  veasiroc::configLoader& g_conf = veasiroc::configLoader::get_instance();
-  veasiroc::regRbcpType reg_probe = g_conf.copy_probereg();
+  femcitiroc::configLoader& g_conf = femcitiroc::configLoader::get_instance();
+  femcitiroc::regRbcpType reg_probe = g_conf.copy_probereg();
 
-  reg_easiroc_pin.reset( kSelectSc );
-  // resetProbeRegister(ip);
+  reg_citiroc_pin.reset( kSelectSc );
+  //  resetProbeRegister(ip);
 
   sendProbeRegisterSub(ip, reg_probe);
 
-  reg_easiroc_pin.set( kSelectSc );
+  reg_citiroc_pin.set( kSelectSc );
 }
 
 //_________________________________________________________________________
 void
 sendProbeRegisterSub(const std::string& ip,
-		   veasiroc::regRbcpType& reg)
+		   femcitiroc::regRbcpType& reg)
 {
-  reg_easiroc_pin.reset( kSelectSc );
-  reg_easiroc_pin.set( kRstbSr );
+  reg_citiroc_pin.reset( kSelectSc );
+  reg_citiroc_pin.set( kRstbSr );
   reg_module.reset( kStartCycle );
   sendDirectControl(ip);
 
@@ -164,8 +164,8 @@ sendProbeRegisterSub(const std::string& ip,
 void
 sendReadRegister(const std::string& ip)
 {
-  veasiroc::configLoader& g_conf = veasiroc::configLoader::get_instance();
-  veasiroc::regRbcpType reg = g_conf.copy_readreg();
+  femcitiroc::configLoader& g_conf = femcitiroc::configLoader::get_instance();
+  femcitiroc::regRbcpType reg = g_conf.copy_readreg();
 
   reg_module.set( kSelectRead );
   // resetReadRegister(ip);
@@ -178,9 +178,9 @@ sendReadRegister(const std::string& ip)
 //_________________________________________________________________________
 void
 sendReadRegisterSub(const std::string& ip,
-		   veasiroc::regRbcpType& reg)
+		   femcitiroc::regRbcpType& reg)
 {
-  reg_easiroc_pin.set( kRstbSr );
+  reg_citiroc_pin.set( kRstbSr );
   reg_module.reset( kStartCycle );
   sendDirectControl(ip);
 
@@ -206,22 +206,22 @@ sendReadRegisterSub(const std::string& ip,
 void
 sendSlowControl(const std::string& ip)
 {    
-  veasiroc::configLoader& g_conf = veasiroc::configLoader::get_instance();
-  veasiroc::regRbcpType reg_easiroc = g_conf.copy_screg();
+  femcitiroc::configLoader& g_conf = femcitiroc::configLoader::get_instance();
+  femcitiroc::regRbcpType reg_citiroc = g_conf.copy_screg();
 
-  reg_easiroc_pin.set( kSelectSc );
+  reg_citiroc_pin.set( kSelectSc );
   // resetSlowControl(ip);
 
-  sendSlowControlSub(ip, reg_easiroc);
+  sendSlowControlSub(ip, reg_citiroc);
 }
 
 //_________________________________________________________________________
 void
 sendSlowControlSub(const std::string& ip,
-		   veasiroc::regRbcpType& reg)
+		   femcitiroc::regRbcpType& reg)
 {
-  reg_easiroc_pin.reset( kLoadSc );
-  reg_easiroc_pin.set( kRstbSr );
+  reg_citiroc_pin.reset( kLoadSc );
+  reg_citiroc_pin.set( kRstbSr );
   reg_module.reset( kStartCycle );
   sendDirectControl(ip);
 
@@ -239,11 +239,11 @@ sendSlowControlSub(const std::string& ip,
 
   sleep(1);
 
-  reg_easiroc_pin.set( kLoadSc );
+  reg_citiroc_pin.set( kLoadSc );
   reg_module.reset( kStartCycle );
   sendDirectControl(ip);
 
-  reg_easiroc_pin.reset( kLoadSc );
+  reg_citiroc_pin.reset( kLoadSc );
   sendDirectControl(ip);
 }
 

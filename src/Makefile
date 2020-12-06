@@ -8,11 +8,11 @@ DEPENDS		= $(SRCALL:.cc=.d)
 SRC		= $(filter-out %main.cc, $(SRCALL))
 OBJ		= $(SRC:.cc=.o)
 
-TARGET 		= veasiroc_control
+TARGET 		= femcitiroc_control
 
 all: $(BIN_DIR)/$(TARGET)
 
-$(BIN_DIR)/veasiroc_control: veasiroc_control_main.o $(OBJ)
+$(BIN_DIR)/femcitiroc_control: femcitiroc_control_main.o $(OBJ)
 	mkdir -p $(BIN_DIR)
 	$(CXX) -o $@ $< $(OBJ) $(LDFLAGS)
 
