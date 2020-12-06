@@ -9,7 +9,7 @@
 
 static const std::string class_name = "configLoader";
 
-using namespace veasiroc;
+using namespace femcitiroc;
 
 // -----------------------------------------------------------------------
 configLoader::configLoader()
@@ -40,7 +40,6 @@ configLoader::copy_probereg()
   probeType dac_type     =  static_cast<probeType>((itr_dac_type->second).reg[0]);
   uint32_t  dac_position =  (itr_dac_channel->second).reg[0];
 
-  
   switch(out_type){
   case is_out_pa_hg:
     out_position = 160 + out_position*2;
@@ -84,9 +83,9 @@ configLoader::copy_probereg()
   for(auto itr = m_bit_rbcp.begin(); itr != m_bit_rbcp.end(); ++itr){
     *itr = false;
   }
-  m_bit_rbcp[out_position] = true;
-  m_bit_rbcp[digital_position] = true;
-  m_bit_rbcp[dac_position] = true;
+  if(out_type != is_out_none) m_bit_rbcp[out_position]     = true;
+  if(out_type != is_out_none) m_bit_rbcp[digital_position] = true;
+  if(out_type != is_out_none) m_bit_rbcp[dac_position]     = true;
 
   translate_bit2reg();
   reverse(m_reg_rbcp.begin(), m_reg_rbcp.end());
@@ -162,7 +161,7 @@ configLoader::copy_screg()
 
 #if DEBUG
   std::cout << func_name << std::endl;
-  print(m_reg_rbcp, "EASIROC");
+  print(m_reg_rbcp, "CITIROC");
 #endif
   return m_reg_rbcp;
 }
@@ -210,6 +209,136 @@ configLoader::initialize_alias()
   m_reg_alias["4.5V"] = 1;
   m_reg_alias["2.5V"] = 0;
 
+  // PreAMP Cf
+  m_reg_alias["HGCf_25fF"]   =   62;
+  m_reg_alias["HGCf_50fF"]   =   61;
+  m_reg_alias["HGCf_75fF"]   =   60;
+  m_reg_alias["HGCf_100fF"]  =   59;
+  m_reg_alias["HGCf_125fF"]  =   58;
+  m_reg_alias["HGCf_150fF"]  =   57;
+  m_reg_alias["HGCf_175fF"]  =   56;
+  m_reg_alias["HGCf_200fF"]  =   55;
+  m_reg_alias["HGCf_225fF"]  =   54;
+  m_reg_alias["HGCf_250fF"]  =   53;
+  m_reg_alias["HGCf_275fF"]  =   52;
+  m_reg_alias["HGCf_300fF"]  =   51;
+  m_reg_alias["HGCf_325fF"]  =   50;
+  m_reg_alias["HGCf_350fF"]  =   49;
+  m_reg_alias["HGCf_375fF"]  =   48;
+  m_reg_alias["HGCf_400fF"]  =   47;
+  m_reg_alias["HGCf_425fF"]  =   46;
+  m_reg_alias["HGCf_450fF"]  =   45;
+  m_reg_alias["HGCf_475fF"]  =   44;
+  m_reg_alias["HGCf_500fF"]  =   43;
+  m_reg_alias["HGCf_525fF"]  =   42;
+  m_reg_alias["HGCf_550fF"]  =   41;
+  m_reg_alias["HGCf_575fF"]  =   40;
+  m_reg_alias["HGCf_600fF"]  =   39;
+  m_reg_alias["HGCf_625fF"]  =   38;
+  m_reg_alias["HGCf_650fF"]  =   37;
+  m_reg_alias["HGCf_675fF"]  =   36;
+  m_reg_alias["HGCf_700fF"]  =   35;
+  m_reg_alias["HGCf_725fF"]  =   34;
+  m_reg_alias["HGCf_750fF"]  =   33;
+  m_reg_alias["HGCf_775fF"]  =   32;
+  m_reg_alias["HGCf_800fF"]  =   31;
+  m_reg_alias["HGCf_825fF"]  =   30;
+  m_reg_alias["HGCf_850fF"]  =   29;
+  m_reg_alias["HGCf_875fF"]  =   28;
+  m_reg_alias["HGCf_900fF"]  =   27;
+  m_reg_alias["HGCf_925fF"]  =   26;
+  m_reg_alias["HGCf_950fF"]  =   25;
+  m_reg_alias["HGCf_975fF"]  =   24;
+  m_reg_alias["HGCf_1000fF"] =   23;
+  m_reg_alias["HGCf_1025fF"] =   22;
+  m_reg_alias["HGCf_1050fF"] =   21;
+  m_reg_alias["HGCf_1075fF"] =   20;
+  m_reg_alias["HGCf_1100fF"] =   19;
+  m_reg_alias["HGCf_1125fF"] =   18;
+  m_reg_alias["HGCf_1150fF"] =   17;
+  m_reg_alias["HGCf_1175fF"] =   16;
+  m_reg_alias["HGCf_1200fF"] =   15;
+  m_reg_alias["HGCf_1225fF"] =   14;
+  m_reg_alias["HGCf_1250fF"] =   13;
+  m_reg_alias["HGCf_1275fF"] =   12;
+  m_reg_alias["HGCf_1300fF"] =   11;
+  m_reg_alias["HGCf_1325fF"] =   10;
+  m_reg_alias["HGCf_1350fF"] =   9;
+  m_reg_alias["HGCf_1375fF"] =   8;
+  m_reg_alias["HGCf_1400fF"] =   7;
+  m_reg_alias["HGCf_1425fF"] =   6;
+  m_reg_alias["HGCf_1450fF"] =   5;
+  m_reg_alias["HGCf_1475fF"] =   4;
+  m_reg_alias["HGCf_1500fF"] =   3;
+  m_reg_alias["HGCf_1525fF"] =   2;
+  m_reg_alias["HGCf_1550fF"] =   1;
+  m_reg_alias["HGCf_1575fF"] =   0;
+
+  m_reg_alias["LGCf_25fF"]   =   62;
+  m_reg_alias["LGCf_50fF"]   =   61;
+  m_reg_alias["LGCf_75fF"]   =   60;
+  m_reg_alias["LGCf_100fF"]  =   59;
+  m_reg_alias["LGCf_125fF"]  =   58;
+  m_reg_alias["LGCf_150fF"]  =   57;
+  m_reg_alias["LGCf_175fF"]  =   56;
+  m_reg_alias["LGCf_200fF"]  =   55;
+  m_reg_alias["LGCf_225fF"]  =   54;
+  m_reg_alias["LGCf_250fF"]  =   53;
+  m_reg_alias["LGCf_275fF"]  =   52;
+  m_reg_alias["LGCf_300fF"]  =   51;
+  m_reg_alias["LGCf_325fF"]  =   50;
+  m_reg_alias["LGCf_350fF"]  =   49;
+  m_reg_alias["LGCf_375fF"]  =   48;
+  m_reg_alias["LGCf_400fF"]  =   47;
+  m_reg_alias["LGCf_425fF"]  =   46;
+  m_reg_alias["LGCf_450fF"]  =   45;
+  m_reg_alias["LGCf_475fF"]  =   44;
+  m_reg_alias["LGCf_500fF"]  =   43;
+  m_reg_alias["LGCf_525fF"]  =   42;
+  m_reg_alias["LGCf_550fF"]  =   41;
+  m_reg_alias["LGCf_575fF"]  =   40;
+  m_reg_alias["LGCf_600fF"]  =   39;
+  m_reg_alias["LGCf_625fF"]  =   38;
+  m_reg_alias["LGCf_650fF"]  =   37;
+  m_reg_alias["LGCf_675fF"]  =   36;
+  m_reg_alias["LGCf_700fF"]  =   35;
+  m_reg_alias["LGCf_725fF"]  =   34;
+  m_reg_alias["LGCf_750fF"]  =   33;
+  m_reg_alias["LGCf_775fF"]  =   32;
+  m_reg_alias["LGCf_800fF"]  =   31;
+  m_reg_alias["LGCf_825fF"]  =   30;
+  m_reg_alias["LGCf_850fF"]  =   29;
+  m_reg_alias["LGCf_875fF"]  =   28;
+  m_reg_alias["LGCf_900fF"]  =   27;
+  m_reg_alias["LGCf_925fF"]  =   26;
+  m_reg_alias["LGCf_950fF"]  =   25;
+  m_reg_alias["LGCf_975fF"]  =   24;
+  m_reg_alias["LGCf_1000fF"] =   23;
+  m_reg_alias["LGCf_1025fF"] =   22;
+  m_reg_alias["LGCf_1050fF"] =   21;
+  m_reg_alias["LGCf_1075fF"] =   20;
+  m_reg_alias["LGCf_1100fF"] =   19;
+  m_reg_alias["LGCf_1125fF"] =   18;
+  m_reg_alias["LGCf_1150fF"] =   17;
+  m_reg_alias["LGCf_1175fF"] =   16;
+  m_reg_alias["LGCf_1200fF"] =   15;
+  m_reg_alias["LGCf_1225fF"] =   14;
+  m_reg_alias["LGCf_1250fF"] =   13;
+  m_reg_alias["LGCf_1275fF"] =   12;
+  m_reg_alias["LGCf_1300fF"] =   11;
+  m_reg_alias["LGCf_1325fF"] =   10;
+  m_reg_alias["LGCf_1350fF"] =   9;
+  m_reg_alias["LGCf_1375fF"] =   8;
+  m_reg_alias["LGCf_1400fF"] =   7;
+  m_reg_alias["LGCf_1425fF"] =   6;
+  m_reg_alias["LGCf_1450fF"] =   5;
+  m_reg_alias["LGCf_1475fF"] =   4;
+  m_reg_alias["LGCf_1500fF"] =   3;
+  m_reg_alias["LGCf_1525fF"] =   2;
+  m_reg_alias["LGCf_1550fF"] =   1;
+  m_reg_alias["LGCf_1575fF"] =   0;
+
+
   // Slow shaper
   m_reg_alias["12.5ns"] =   1;
   m_reg_alias["25.0ns"] =   2;
@@ -229,6 +358,7 @@ configLoader::initialize_alias()
   m_reg_alias["OR64"]  =    66;
 
   // Probe type
+  m_reg_alias["None"]       = is_out_none;
   m_reg_alias["Out_PA_HG"]  = is_out_pa_hg;
   m_reg_alias["Out_PA_LG"]  = is_out_pa_lg;
   m_reg_alias["Out_ssh_HG"] = is_out_ssh_hg;
@@ -379,7 +509,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: Discriminator";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -400,7 +530,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: Discriminator_t";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -414,7 +544,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: 4b_dac";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -428,7 +558,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: 4b_dac_t";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -448,7 +578,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: HG T&H(Widlar SCA)";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -462,14 +592,14 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: LG T&H(Widlar SCA)";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "EN_LG_T&H(Widlar SCA)";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -483,7 +613,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: HG Pdet";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -497,7 +627,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: LG Pdet";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -539,7 +669,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: Fast Shapers Follower";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -560,7 +690,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: Low Gain Slow Shaper";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -581,7 +711,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: High Gain Slow Shaper";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -609,7 +739,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: High Gain PreAmplifier";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -623,7 +753,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: Low Gain PreAmplifier";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -658,8 +788,8 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "Input 8-bit DAC";
-    //    Register cont = {9, msb2lsb, false,
-    Register cont = {9, lsb2msb, false, 
+    Register cont = {9, msb2lsb, false,
+		     //    Register cont = {9, lsb2msb, false, 
 		     {
 		       1, 1, 1, 1, 1, 1, 1, 1,
 		       1, 1, 1, 1, 1, 1, 1, 1,
@@ -671,7 +801,7 @@ configLoader::initialize_slowcontrol_register()
   }
 
   {
-    const std::string name = "Channel 0 to 31 PA";
+    const std::string name = "PreAMP";
     Register cont = {15, msb2lsb, false, 
 		     {
 		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
@@ -685,7 +815,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: Temp";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -699,7 +829,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: BandGap";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -720,7 +850,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: DAC1";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -734,7 +864,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: DAC2";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -811,7 +941,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: Val_Evt receiver";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -825,7 +955,7 @@ configLoader::initialize_slowcontrol_register()
 
   {
     const std::string name = "PP: Raz Chn receiver";
-    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
@@ -924,7 +1054,7 @@ configLoader::read_YAML( const std::string& filename)
   }
 
   enum modeYAML{
-    is_easiroc1, is_module
+    is_citiroc1, is_module
   } present_mode = is_module;
 
   enum typeYAML{
@@ -949,8 +1079,8 @@ configLoader::read_YAML( const std::string& filename)
     std::stringstream line_to_word(line);
     if(line[0] != ' ' && line[0] != '-'){
       getline(line_to_word, present_key, ':');
-      if(present_key == "EASIROC"){
-	present_mode = is_easiroc1;
+      if(present_key == "CITIROC"){
+	present_mode = is_citiroc1;
       }else{
 	present_mode = is_module;
       }
@@ -989,9 +1119,9 @@ configLoader::read_YAML( const std::string& filename)
     auto itr = present_mode == is_module ? 
       m_otherreg_map.find(present_key) : m_screg_map.find(present_key);
     
-    if(present_mode == is_easiroc1){
+    if(present_mode == is_citiroc1){
 #if DEBUG
-      std::cout << "EASIROC1::" 
+      std::cout << "CITIROC1::" 
 		<< present_key << "::" 
 		<< present_reg << " (" << present_index << ")"
 		<< std::endl;
@@ -1024,7 +1154,26 @@ configLoader::read_YAML( const std::string& filename)
     if(m_reg_alias.find(present_reg) != m_reg_alias.end()){
       // Alias tranlation
       uint32_t val = m_reg_alias[present_reg];
-      cont.reg[present_index] = val;
+      if(present_reg.substr(0, 4) == "HGCf"){
+	const int32_t shift = 9;
+	const int32_t mask  = 0x1FF;
+	const int32_t kCh   = 32;
+	
+	for(int32_t i = 0; i<kCh; ++i){
+	  cont.reg[i] = (val << shift) | (cont.reg[i] & mask);
+	}
+      }else if(present_reg.substr(0, 4) == "LGCf"){
+	const int32_t shift = 3;
+	const int32_t mask  = 0x7E07;
+	const int32_t kCh   = 32;
+	
+	for(int32_t i = 0; i<kCh; ++i){
+	  cont.reg[i] = (val << shift) | (cont.reg[i] & mask);
+	}
+      }else{
+	cont.reg[present_index] = val;
+      }
+
     }else{
       uint32_t val = 0;
       std::stringstream reg_to_val(present_reg);
@@ -1037,6 +1186,10 @@ configLoader::read_YAML( const std::string& filename)
 	int surplus = channel%8;
 	int index = 8*quotient - surplus +7;
 	val = static_cast<uint32_t>(1<<index);
+      }else if(present_key == "Input 8-bit DAC"){
+	uint32_t idac_onoff = cont.reg[present_index] & 0x1;
+	reg_to_val >> val;
+	val = (val << 1) | idac_onoff;
       }else{
 	reg_to_val >> val;
       }

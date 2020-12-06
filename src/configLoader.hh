@@ -1,5 +1,5 @@
-#ifndef VEASI_CONF_REG_H_
-#define VEASI_CONF_REG_H_
+#ifndef FEMCITI_CONF_REG_H_
+#define FEMCITI_CONF_REG_H_
 
 #include<unistd.h>
 #include<vector>
@@ -7,7 +7,7 @@
 #include<string>
 #include<algorithm>
 
-namespace veasiroc
+namespace femcitiroc
 {
 
   typedef std::vector<uint32_t> regType;
@@ -74,6 +74,7 @@ namespace veasiroc
       is_peak_sensing_modeb_lg,
       is_out_ssh_lg,
       is_out_fs,
+      is_out_none
     };
 
     configLoader( const configLoader& );

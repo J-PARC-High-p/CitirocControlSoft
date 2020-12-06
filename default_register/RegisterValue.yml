@@ -1,8 +1,18 @@
-EASIROC:
+CITIROC:
+  PreAMP: HGCf_50fF
+  PreAMP: LGCf_1000fF
   Time Constant HG Shaper: 50.0ns
   Time Constant LG Shaper: 50.0ns
-  DAC1 code: 0
-  DAC2 code: 0
+  DAC1 code: 1000
+  DAC2 code: 340
+  8-bit DAC reference: 4.5V
+  EN_LG_T&H(Widlar SCA): Disable
+  EN_LG_Pdet: Disable
+  En_Low_Gain_Slow Shaper: Disable
+  En_High_Gain_Slow Shaper: Enable
+  LG PA bias: Disable
+  EN_Low_Gain_PA: Disable
+  EN_Probe OTAq: Disable
 High Gain Channel: 12
 Probe Channel: 12
-Probe: Out_fs
+Probe: None
