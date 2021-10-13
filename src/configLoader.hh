@@ -7,6 +7,8 @@
 #include<string>
 #include<algorithm>
 
+const int n_citiroc = 4;
+
 namespace femcitiroc
 {
 
