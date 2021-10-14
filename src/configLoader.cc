@@ -135,9 +135,7 @@ configLoader::copy_readreg()
 
   Register cont = itr->second;
   cont.reg[0] = channel;
-  for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
-    fill_bit(cont);
-  }//for(i_citiroc:n_citiroc)
+  fill_bit(cont);
 
   translate_bit2reg();
 #if DEBUG
@@ -389,7 +387,7 @@ configLoader::initialize_other_register()
   // Read slow control
   {
     const std::string name = "High Gain Channel";
-    Register cont = {32, msb2lsb, false, {0}};
+    Register cont = {128, msb2lsb, false, {0}};
     m_otherreg_map.insert(std::make_pair(name, cont));
   }
 
