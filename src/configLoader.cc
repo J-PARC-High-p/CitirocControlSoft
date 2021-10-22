@@ -7,7 +7,7 @@
 #include<algorithm>
 #include<math.h>
 
-#define DEBUG 1
+// #define DEBUG 1
 
 static const std::string class_name = "configLoader";
 
@@ -156,21 +156,19 @@ configLoader::copy_screg()
   m_reg_rbcp.clear();
   auto itr_end = m_screg_map.end();
   //  for( const auto& reg_name : m_screg_order){
-  for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
-    for( uint32_t i = 0; i<m_screg_order.size(); ++i){
-      auto& reg_name = m_screg_order[i];
-      auto itr = m_screg_map.find(reg_name);
-      if(itr != itr_end){
-	fill_bit(itr->second);
-      }else{
-	// Not found
-	std::cerr << "#E: "
-		  << func_name 
-		  << " No such register key [" << reg_name << "]"
-		  << std::endl;
-      }
-    }// for(screg_order)
-  }//for(i_citiroc:n_citiroc)
+  for( uint32_t i = 0; i<m_screg_order.size(); ++i){
+    auto& reg_name = m_screg_order[i];
+    auto itr = m_screg_map.find(reg_name);
+    if(itr != itr_end){
+      fill_bit(itr->second);
+    }else{
+      // Not found
+      std::cerr << "#E: "
+		<< func_name 
+		<< " No such register key [" << reg_name << "]"
+		<< std::endl;
+    }
+  }// for(screg_order)
 
   translate_bit2reg();
   reverse(m_reg_rbcp.begin(), m_reg_rbcp.end());

@@ -83,6 +83,7 @@ FPGAModule::WriteModule_nByte(const uint32_t module_id,
     = ((module_id & kModuleIdMask) << kModuleIdShift)
     + ((local_address & kAddressMask) << kAddressShift);
 
+  // udp_rbcp_.SetDispMode(RBCP::UDPRBCP::kDebug);
   udp_rbcp_.SetWD(udp_addr, n_byte, write_data);
 
   int32_t ret = 0;

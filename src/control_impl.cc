@@ -15,6 +15,7 @@
 #include <iomanip>
 
 #include"control_impl.hh"
+#include"configLoader.hh"
 #include"rbcp.hh"
 #include"FPGAModule.hh"
 #include"UDPRBCP.hh"
@@ -229,13 +230,15 @@ sendSlowControlSub(const std::string& ip,
   HUL::FPGAModule fpga_module(rbcp);
 
   int n_reg = reg.size();
-  std::cout << "#D: N_reg" << std::endl;
-  std::cout << " - " << n_reg << std::endl;
 
   const uint8_t *reg_slow = static_cast<const uint8_t*>(&reg[0]);
-  fpga_module.WriteModule_nByte(HUL::CITIROC::ASIC::mid,
-				HUL::CITIROC::ASIC::kAddrSlowControlFIFO,
-				reg_slow, n_reg);
+  for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
+    fpga_module.WriteModule_nByte(HUL::CITIROC::ASIC::mid,
+				  HUL::CITIROC::ASIC::kAddrSlowControlFIFO,
+				  reg_slow, n_reg);
+    std::cout << "#D: N_reg" << std::endl;
+    std::cout << " - " << n_reg << std::endl;
+  }//for(i_citiroc:n_citiroc)
 
   reg_module.set( kStartCycle );
   sendDirectControl(ip);
