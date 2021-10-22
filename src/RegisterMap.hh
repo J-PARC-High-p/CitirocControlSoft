@@ -7,7 +7,7 @@ namespace HUL{
 namespace CITIROC{
 // ASIC -------------------------------------------------------------------
 namespace ASIC{
-  static const uint32_t mid = 0x2;
+  static const uint32_t mid = 0x3;
   enum LocalAddress
     {
      kAddrSlowControlFIFO     = 0x000, // W, [7:0]

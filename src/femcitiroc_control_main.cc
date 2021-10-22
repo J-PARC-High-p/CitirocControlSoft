@@ -100,7 +100,10 @@ int main(int argc, char* argv[])
   resetDirectControl(ip);
   if(exec_list[i_sc])    sendSlowControl(ip);
   if(exec_list[i_probe]) sendProbeRegister(ip);
-  if(exec_list[i_read])  sendReadRegister(ip);
+  if(exec_list[i_read]){
+    resetReadRegister(ip);
+    sendReadRegister(ip);
+  }
   if(exec_list[i_probe_off]) resetProbeRegister(ip);
   
   return 0;

@@ -7,6 +7,8 @@
 #include<algorithm>
 #include<math.h>
 
+#define DEBUG 1
+
 static const std::string class_name = "configLoader";
 
 using namespace femcitiroc;
@@ -387,7 +389,7 @@ configLoader::initialize_other_register()
   // Read slow control
   {
     const std::string name = "High Gain Channel";
-    Register cont = {128, msb2lsb, false, {0}};
+    Register cont = {32, msb2lsb, false, {0}};
     m_otherreg_map.insert(std::make_pair(name, cont));
   }
 
@@ -1199,7 +1201,9 @@ configLoader::read_YAML( const std::string& filename)
         int quotient = channel/8;
 	int surplus = channel%8;
 	int index = 8*quotient - surplus +7;
+	std::cout << "index : " << index << std::endl;
 	val = static_cast<uint32_t>(1<<index);
+	std::cout << "val : " << val << std::endl;
       }else if(present_key == "Input 8-bit DAC"){
 	uint32_t idac_onoff = cont.reg[present_index] & 0x1;
 	reg_to_val >> val;

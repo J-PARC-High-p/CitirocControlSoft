@@ -87,15 +87,15 @@ resetSlowControl(const std::string& ip)
   reg_citiroc_pin.set( kSelectSc );
   sendDirectControl(ip);
 
-  // reg_citiroc_pin.reset( kRstbSr );
+  reg_citiroc_pin.reset( kRstbSr );
   // reg_citiroc_pin.reset( kResetbPA );
   // reg_citiroc_pin.reset( kRstbPSC );
-  // sendDirectControl(ip);
+  sendDirectControl(ip);
  
-  // reg_citiroc_pin.set( kRstbSr );
+  reg_citiroc_pin.set( kRstbSr );
   // reg_citiroc_pin.set( kResetbPA );
   // reg_citiroc_pin.set( kRstbPSC );
-  // sendDirectControl(ip);
+  sendDirectControl(ip);
 }
 
 //_________________________________________________________________________
@@ -229,6 +229,9 @@ sendSlowControlSub(const std::string& ip,
   HUL::FPGAModule fpga_module(rbcp);
 
   int n_reg = reg.size();
+  std::cout << "#D: N_reg" << std::endl;
+  std::cout << " - " << n_reg << std::endl;
+
   const uint8_t *reg_slow = static_cast<const uint8_t*>(&reg[0]);
   fpga_module.WriteModule_nByte(HUL::CITIROC::ASIC::mid,
 				HUL::CITIROC::ASIC::kAddrSlowControlFIFO,
