@@ -7,7 +7,7 @@
 #include<algorithm>
 #include<math.h>
 
-// #define DEBUG 1
+//#define DEBUG 1
 
 static const std::string class_name = "configLoader";
 
@@ -45,18 +45,23 @@ configLoader::copy_probereg()
   switch(out_type){
   case is_out_pa_hg:
     out_position = 160 + out_position*2;
+    printf("out_type : %d\n",out_position);
     break;
   case is_out_pa_lg:
     out_position = 160 + out_position*2 +1;
+    printf("out_type : %d\n",out_position);
     break;
   case is_out_ssh_hg:
     out_position = 96 + out_position;
+    printf("out_type : %d\n",out_position);
     break;
   case is_out_ssh_lg:
     out_position = 32 + out_position;
+    printf("out_type : %d\n",out_position);
     break;
   case is_out_fs:
     out_position = out_position;
+    printf("out_type : %d\n",out_position);
     break;
   default:
     break;
@@ -65,9 +70,11 @@ configLoader::copy_probereg()
   switch(digital_type){
   case is_peak_sensing_modeb_hg:
     digital_position = 64 + digital_position;
+    printf("digital_type : %d\n",digital_position);
     break;
   case is_peak_sensing_modeb_lg:
     digital_position = 128 + digital_position;
+    printf("digital_type : %d\n",digital_position);
     break;
   default:
     break;
@@ -76,30 +83,31 @@ configLoader::copy_probereg()
   switch(dac_type){
   case is_input_dac:
     dac_position = 224 + dac_position;
+    printf("daq_type : %d\n",dac_position);
     break;
   default:
     break;
   }
 
-  m_bit_rbcp.resize(256*n_citiroc);
+  m_bit_rbcp.resize(256);
   for(auto itr = m_bit_rbcp.begin(); itr != m_bit_rbcp.end(); ++itr){
     *itr = false;
   }
   if(out_type != is_out_none){
-    for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
-      m_bit_rbcp[out_position + 256*i_citiroc]     = true;
-    }//for(i_citiroc:n_citiroc)
+    // for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
+      m_bit_rbcp[out_position]     = true;
+    // }//for(i_citiroc:n_citiroc)
   }//if(out_type)
-  if(out_type != is_out_none){
-    for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
-      m_bit_rbcp[digital_position + 256*i_citiroc] = true;
-    }//for(i_citiroc:n_citiroc)
-  }//if(out_type)
-  if(out_type != is_out_none){
-    for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
-      m_bit_rbcp[dac_position + 256*i_citiroc]     = true;
-    }//for(i_citiroc:n_citiroc)
-  }//if(out_type)
+  // if(out_type != is_out_none){
+  //   // for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
+  //     m_bit_rbcp[digital_position] = true;
+  //   // }//for(i_citiroc:n_citiroc)
+  // }//if(out_type)
+  // if(out_type != is_out_none){
+  //   // for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
+  //     m_bit_rbcp[dac_position]     = true;
+  //   // }//for(i_citiroc:n_citiroc)
+  // }//if(out_type)
 
   translate_bit2reg();
   reverse(m_reg_rbcp.begin(), m_reg_rbcp.end());
@@ -818,10 +826,10 @@ configLoader::initialize_slowcontrol_register()
     const std::string name = "PreAMP";
     Register cont = {15, msb2lsb, false, 
 		     {
-		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
-		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
-		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
-		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680
+		       30686, 30686, 30686, 30686, 30686, 30686, 30686, 30686,
+		       30686, 30686, 30686, 30686, 30686, 30686, 30686, 30686,
+		       30686, 30686, 30686, 30686, 30686, 30686, 30686, 30686,
+		       30686, 30686, 30686, 30686, 30686, 30686, 30686, 30686
 		     }};
     m_screg_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
@@ -1184,6 +1192,26 @@ configLoader::read_YAML( const std::string& filename)
 	for(int32_t i = 0; i<kCh; ++i){
 	  cont.reg[i] = (val << shift) | (cont.reg[i] & mask);
 	}
+      // }else if(present_reg.substr(0, 6) == "TestHG"){
+      // 	const int32_t shift = 2;
+      // 	const int32_t mask  = 0x7FFF;
+      // 	const int32_t kCh   = 32;
+	
+      // 	for(int32_t i = 0; i<kCh; ++i){
+      // 	  cont.reg[i] = (1 << shift) | (cont.reg[i] & mask);
+      // 	  std::cout << "TestHG" << (1 << shift) << std::endl;
+      // 	  std::cout << "Register" << (cont.reg[i] & mask) << std::endl;
+      // 	}
+      // }else if(present_reg.substr(0, 6) == "TestLG"){
+      // 	const int32_t shift = 1;
+      // 	const int32_t mask  = 0x7FFF;
+      // 	const int32_t kCh   = 32;
+	
+      // 	for(int32_t i = 0; i<kCh; ++i){
+      // 	  cont.reg[i] = (1 << shift) | (cont.reg[i] & mask);
+      // 	  std::cout << "TestLG" << (1 << shift) << std::endl;
+      // 	  std::cout << "Register" << (cont.reg[i] & mask) << std::endl;
+      // 	}
       }else{
 	cont.reg[present_index] = val;
       }

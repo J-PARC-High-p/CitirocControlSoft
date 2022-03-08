@@ -4,7 +4,7 @@ CITIROC:
   Time Constant HG Shaper: 50.0ns
   Time Constant LG Shaper: 50.0ns
   DAC1 code: 1000
-  DAC2 code: 340
+  DAC2 code: 1000
   8-bit DAC reference: 4.5V
   EN_LG_T&H(Widlar SCA): Disable
   EN_LG_Pdet: Disable
@@ -14,5 +14,5 @@ CITIROC:
   EN_Low_Gain_PA: Disable
   EN_Probe OTAq: Disable
 High Gain Channel: 12
-Probe Channel: 12
-Probe: None
+Probe Channel: 0
+Probe: Out_fs
