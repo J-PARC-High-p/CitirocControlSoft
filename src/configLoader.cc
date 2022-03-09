@@ -7,7 +7,7 @@
 #include<algorithm>
 #include<math.h>
 
-//#define DEBUG 1
+#define DEBUG 1
 
 static const std::string class_name = "configLoader";
 
@@ -112,7 +112,7 @@ configLoader::copy_probereg()
   translate_bit2reg();
   reverse(m_reg_rbcp.begin(), m_reg_rbcp.end());
 #if DEBUG
-  print(m_reg_rbcp, "Probe Slow Control");
+  // print(m_reg_rbcp, "Probe Slow Control");
 #endif
   return m_reg_rbcp;
 }
@@ -126,7 +126,7 @@ configLoader::copy_probereg_null()
   for(uint32_t i = 0; i<m_reg_rbcp.size(); ++i) m_reg_rbcp[i] = 0;
 
 #if DEBUG
-  print(m_reg_rbcp, "Probe Slow Control (NULL)");
+  // print(m_reg_rbcp, "Probe Slow Control (NULL)");
 #endif
 
   return m_reg_rbcp;
@@ -149,7 +149,7 @@ configLoader::copy_readreg()
 
   translate_bit2reg();
 #if DEBUG
-  print(m_reg_rbcp, "Read Slow Control");
+  // print(m_reg_rbcp, "Read Slow Control");
 #endif
   return m_reg_rbcp;
 }
@@ -183,7 +183,7 @@ configLoader::copy_screg()
 
 #if DEBUG
   std::cout << func_name << std::endl;
-  print(m_reg_rbcp, "CITIROC");
+  // print(m_reg_rbcp, "CITIROC");
 #endif
   return m_reg_rbcp;
 }

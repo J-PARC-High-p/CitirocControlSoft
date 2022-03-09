@@ -21,6 +21,8 @@
 #include"UDPRBCP.hh"
 #include"RegisterMap.hh"
 
+#define DEBUG_ctrl 1
+
 namespace{
   // Local index -----------------------------------------
   enum PinDirectControl
@@ -112,9 +114,19 @@ sendDirectControl(const std::string& ip)
   			  HUL::CITIROC::ASIC::kAddrPinDirectControl,
   			  reg_citiroc_pin.to_ulong(), n_reg_pin);
 
+#if DEBUG_ctrl
+  printf("#D:CITIROC pin\n");
+  std::cout << " - " << reg_citiroc_pin << std::endl;
+#endif
+  
   fpga_module.WriteModule(HUL::CITIROC::ASIC::mid,
   			  HUL::CITIROC::ASIC::kAddrCycleControl,
   			  reg_module.to_ulong());
+#if DEBUG_ctrl
+  printf("#D:Module control\n");
+  std::cout << " - " << reg_module << std::endl;
+#endif
+
 }
 
 //_________________________________________________________________________
@@ -150,7 +162,17 @@ sendProbeRegisterSub(const std::string& ip,
   fpga_module.WriteModule_nByte(HUL::CITIROC::ASIC::mid,
 				HUL::CITIROC::ASIC::kAddrSlowControlFIFO,
 				reg_read, n_reg);
-
+#if DEBUG_ctrl
+  std::cout << "#D: Probe Slow Control"
+	    << std::endl;
+  
+  for(uint32_t i = 0; i<reg.size(); ++i){
+    if(i%8 == 0) printf(" - ");
+    printf("%02x", reg[i]);
+    if(i%8 == 7 || i == reg.size() - 1) printf("\n");
+  }// for(reg)
+#endif
+  
   reg_module.set( kStartCycle );
   sendDirectControl(ip);
 
@@ -193,6 +215,16 @@ sendReadRegisterSub(const std::string& ip,
   fpga_module.WriteModule_nByte(HUL::CITIROC::ASIC::mid,
 				HUL::CITIROC::ASIC::kAddrSlowControlFIFO,
 				reg_read, n_reg);
+#if DEBUG_ctrl
+  std::cout << "#D: Read Slow Control"
+	    << std::endl;
+  
+  for(uint32_t i = 0; i<reg.size(); ++i){
+    if(i%8 == 0) printf(" - ");
+    printf("%02x", reg[i]);
+    if(i%8 == 7 || i == reg.size() - 1) printf("\n");
+  }// for(reg)
+#endif
 
   reg_module.set( kStartCycle );
   sendDirectControl(ip);
@@ -239,7 +271,17 @@ sendSlowControlSub(const std::string& ip,
     std::cout << "#D: N_reg" << std::endl;
     std::cout << " - " << n_reg << std::endl;
   }//for(i_citiroc:n_citiroc)
-
+#if DEBUG_ctrl
+  std::cout << "#D: Slow Control"
+	    << std::endl;
+  
+  for(uint32_t i = 0; i<reg.size(); ++i){
+    if(i%8 == 0) printf(" - ");
+    printf("%02x", reg[i]);
+    if(i%8 == 7 || i == reg.size() - 1) printf("\n");
+  }// for(reg)
+#endif
+  
   reg_module.set( kStartCycle );
   sendDirectControl(ip);
 
