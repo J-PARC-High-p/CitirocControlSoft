@@ -14,5 +14,5 @@ CITIROC:
   EN_Low_Gain_PA: Disable
   EN_Probe OTAq: Disable
 High Gain Channel: 12
-Probe Channel: 0
+Probe Channel: 12
 Probe: Out_fs

@@ -84,13 +84,13 @@ FPGAModule::WriteModule_nByte(const uint32_t module_id,
     + ((local_address & kAddressMask) << kAddressShift);
 
   // udp_rbcp_.SetDispMode(RBCP::UDPRBCP::kDebug);
-  // udp_rbcp_.SetWD(udp_addr, n_byte, write_data);
+  udp_rbcp_.SetWD(udp_addr, n_byte, write_data);
 
   int32_t ret = 0;
-  // if( 0 > (ret = udp_rbcp_.DoRBCP())){
-  //     std::cout << "#E :FPGAModule::WriteModule_nByte, Write error " << ret 
-  // 		<< std::endl;
-  // }
+  if( 0 > (ret = udp_rbcp_.DoRBCP())){
+      std::cout << "#E :FPGAModule::WriteModule_nByte, Write error " << ret 
+		<< std::endl;
+  }
 
   return ret;
 }
@@ -107,9 +107,9 @@ FPGAModule::ReadModule_nByte(const uint32_t module_id,
     = ((module_id & kModuleIdMask) << kModuleIdShift)
     + ((local_address & kAddressMask) << kAddressShift);
 
-  // udp_rbcp_.SetRD(udp_addr, n_byte);
+  udp_rbcp_.SetRD(udp_addr, n_byte);
   int32_t ret = 0;;
-  // if((ret = udp_rbcp_.DoRBCP()) > -1){ udp_rbcp_.CopyRD(rd_data_); }
+  if((ret = udp_rbcp_.DoRBCP()) > -1){ udp_rbcp_.CopyRD(rd_data_); }
 
   return ret;
 }
