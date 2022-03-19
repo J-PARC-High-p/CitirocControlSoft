@@ -32,7 +32,7 @@ namespace{
 
   enum CycleControl
     {
-      kStartCycle, kSelectRead
+      kStartCycle, kSelectRead, kAnalogMux, kProbeMux1, kProbeMux2
     };
   
   std::bitset<16> reg_citiroc_pin;
@@ -57,6 +57,9 @@ resetDirectControl(const std::string& ip)
 
   reg_module.reset( kStartCycle );
   reg_module.reset( kSelectRead  );
+  reg_module.reset( kAnalogMux  );
+  reg_module.reset( kProbeMux1  );
+  reg_module.reset( kProbeMux2  );
 
   sendDirectControl(ip);
 }
@@ -242,6 +245,29 @@ sendSlowControl(const std::string& ip)
   femcitiroc::configLoader& g_conf = femcitiroc::configLoader::get_instance();
   femcitiroc::regRbcpType reg_citiroc = g_conf.copy_screg();
 
+  int mux_analog = g_conf.get_mux_analog();
+  int mux_probe = g_conf.get_mux_probe();
+
+  if(mux_analog == 0){ // m_reg_alias["Mux_HG"]
+    reg_module.reset( kAnalogMux  );
+  }else{
+    reg_module.reset( kAnalogMux  );
+  }
+  
+  if(mux_probe == 1){
+    reg_module.reset( kProbeMux1  );
+    reg_module.reset( kProbeMux2  );
+  }else if(mux_probe == 2){
+    reg_module.set( kProbeMux1  );
+    reg_module.reset( kProbeMux2  );
+  }else if(mux_probe == 3){
+    reg_module.reset( kProbeMux1  );
+    reg_module.set( kProbeMux2  );
+  }else{
+    reg_module.set( kProbeMux1  );
+    reg_module.set( kProbeMux2  );
+  }
+  
   reg_citiroc_pin.set( kSelectSc );
   // resetSlowControl(ip);
 

@@ -189,6 +189,26 @@ configLoader::copy_screg()
 }
 
 // -----------------------------------------------------------------------
+int
+configLoader::get_mux_analog()
+{
+  auto itr = m_otherreg_map.find("Analog Mux");
+  uint32_t channel = (itr->second).reg[0];
+
+  return channel;
+}
+
+// -----------------------------------------------------------------------
+int
+configLoader::get_mux_probe()
+{
+  auto itr = m_otherreg_map.find("Probe Mux");
+  uint32_t channel = (itr->second).reg[0];
+
+  return channel;
+}
+
+// -----------------------------------------------------------------------
 void
 configLoader::fill_bit(Register& cont)
 {
@@ -386,6 +406,10 @@ configLoader::initialize_alias()
   m_reg_alias["Out_ssh_HG"] = is_out_ssh_hg;
   m_reg_alias["Out_ssh_LG"] = is_out_ssh_lg;
   m_reg_alias["Out_fs"]     = is_out_fs;
+
+  // Analog MUX
+  m_reg_alias["Mux_HG"] = 0;
+  m_reg_alias["Mux_LG"] = 1;
 }
 
 // -----------------------------------------------------------------------
@@ -486,6 +510,22 @@ configLoader::initialize_other_register()
   {
     const std::string name = "TimeWindow";
     Register cont = {16, msb2lsb, false, {0}};
+    m_otherreg_map.insert(std::make_pair(name, cont));
+  }
+
+  // Analog Mux
+  {
+    // Internal
+    const std::string name = "Analog Mux";
+    Register cont = {1, msb2lsb, false, {m_reg_alias["Mux_HG"]}};
+    m_otherreg_map.insert(std::make_pair(name, cont));
+  }
+
+  // Probe Mux
+  {
+    // Internal
+    const std::string name = "Probe Mux";
+    Register cont = {2, msb2lsb, false, {0}};
     m_otherreg_map.insert(std::make_pair(name, cont));
   }
 }

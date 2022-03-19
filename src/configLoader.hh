@@ -38,6 +38,9 @@ namespace femcitiroc
     regRbcpType copy_readreg();
     regRbcpType copy_screg();
 
+    int         get_mux_analog();
+    int         get_mux_probe();
+
     int         get_index_probe();
     int         get_index_readsc();
     static configLoader& get_instance();
