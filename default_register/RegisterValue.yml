@@ -17,4 +17,4 @@ High Gain Channel: 12
 Probe Channel: 12
 Probe: Out_fs
 Analog Mux: Mux_HG
-Probe Mux: 0
+Probe Mux: 1

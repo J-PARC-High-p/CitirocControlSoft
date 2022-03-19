@@ -251,7 +251,7 @@ sendSlowControl(const std::string& ip)
   if(mux_analog == 0){ // m_reg_alias["Mux_HG"]
     reg_module.reset( kAnalogMux  );
   }else{
-    reg_module.reset( kAnalogMux  );
+    reg_module.set( kAnalogMux  );
   }
   
   if(mux_probe == 1){

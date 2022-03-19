@@ -192,9 +192,16 @@ configLoader::copy_screg()
 int
 configLoader::get_mux_analog()
 {
+  static const std::string func_name = "["+class_name+"::"+__func__+"()]";
+
   auto itr = m_otherreg_map.find("Analog Mux");
   uint32_t channel = (itr->second).reg[0];
 
+#if DEBUG
+  std::cout << func_name << std::endl;
+  std::cout << " - " << channel << std::endl;
+#endif
+  
   return channel;
 }
 
@@ -202,8 +209,15 @@ configLoader::get_mux_analog()
 int
 configLoader::get_mux_probe()
 {
+  static const std::string func_name = "["+class_name+"::"+__func__+"()]";
+
   auto itr = m_otherreg_map.find("Probe Mux");
   uint32_t channel = (itr->second).reg[0];
+
+#if DEBUG
+  std::cout << func_name << std::endl;
+  std::cout << " - " << channel << std::endl;
+#endif
 
   return channel;
 }
@@ -525,7 +539,7 @@ configLoader::initialize_other_register()
   {
     // Internal
     const std::string name = "Probe Mux";
-    Register cont = {2, msb2lsb, false, {0}};
+    Register cont = {2, msb2lsb, false, {1}};
     m_otherreg_map.insert(std::make_pair(name, cont));
   }
 }
