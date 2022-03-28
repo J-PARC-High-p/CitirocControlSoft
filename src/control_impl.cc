@@ -27,12 +27,12 @@ namespace{
   // Local index -----------------------------------------
   enum PinDirectControl
     {
-      kRstbRead, kRstbSr, kLoadSc, kSelectSc, kPwrOn, kResetbPA, kValEvt, kRazChn, kRstbPSC, kPSModeb
+      kRstbRead, kRstbSr, kLoadSc, kSelectSc, kPwrOn, kResetbPA, kValEvt, kRazChn, kRstbPSC, kPSModeb, kAnalogMux, kProbeMux1, kProbeMux2
     };
 
   enum CycleControl
     {
-      kStartCycle, kSelectRead, kAnalogMux, kProbeMux1, kProbeMux2
+      kStartCycle, kSelectRead
     };
   
   std::bitset<16> reg_citiroc_pin;
@@ -54,12 +54,12 @@ resetDirectControl(const std::string& ip)
   reg_citiroc_pin.reset( kRazChn   );
   reg_citiroc_pin.set(   kRstbPSC );
   reg_citiroc_pin.set(   kPSModeb );
+  reg_citiroc_pin.reset( kAnalogMux  );
+  reg_citiroc_pin.reset( kProbeMux1  );
+  reg_citiroc_pin.reset( kProbeMux2  );
 
   reg_module.reset( kStartCycle );
   reg_module.reset( kSelectRead  );
-  reg_module.reset( kAnalogMux  );
-  reg_module.reset( kProbeMux1  );
-  reg_module.reset( kProbeMux2  );
 
   sendDirectControl(ip);
 }
@@ -140,7 +140,9 @@ sendProbeRegister(const std::string& ip)
   femcitiroc::regRbcpType reg_probe = g_conf.copy_probereg();
 
   reg_citiroc_pin.reset( kSelectSc );
-  //  resetProbeRegister(ip);
+  for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
+    resetProbeRegister(ip);
+  }//for(i_citiroc:n_citiroc)
 
   sendProbeRegisterSub(ip, reg_probe);
 
@@ -249,23 +251,23 @@ sendSlowControl(const std::string& ip)
   int mux_probe = g_conf.get_mux_probe();
 
   if(mux_analog == 0){ // m_reg_alias["Mux_HG"]
-    reg_module.reset( kAnalogMux  );
+    reg_citiroc_pin.reset( kAnalogMux  );
   }else{
-    reg_module.set( kAnalogMux  );
+    reg_citiroc_pin.set( kAnalogMux  );
   }
   
   if(mux_probe == 1){
-    reg_module.reset( kProbeMux1  );
-    reg_module.reset( kProbeMux2  );
+    reg_citiroc_pin.reset( kProbeMux1  );
+    reg_citiroc_pin.reset( kProbeMux2  );
   }else if(mux_probe == 2){
-    reg_module.set( kProbeMux1  );
-    reg_module.reset( kProbeMux2  );
+    reg_citiroc_pin.set( kProbeMux1  );
+    reg_citiroc_pin.reset( kProbeMux2  );
   }else if(mux_probe == 3){
-    reg_module.reset( kProbeMux1  );
-    reg_module.set( kProbeMux2  );
+    reg_citiroc_pin.reset( kProbeMux1  );
+    reg_citiroc_pin.set( kProbeMux2  );
   }else{
-    reg_module.set( kProbeMux1  );
-    reg_module.set( kProbeMux2  );
+    reg_citiroc_pin.set( kProbeMux1  );
+    reg_citiroc_pin.set( kProbeMux2  );
   }
   
   reg_citiroc_pin.set( kSelectSc );
