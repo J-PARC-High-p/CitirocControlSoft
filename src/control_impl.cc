@@ -140,9 +140,9 @@ sendProbeRegister(const std::string& ip)
   femcitiroc::regRbcpType reg_probe = g_conf.copy_probereg();
 
   reg_citiroc_pin.reset( kSelectSc );
-  for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
-    resetProbeRegister(ip);
-  }//for(i_citiroc:n_citiroc)
+  // for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
+  //   resetProbeRegister(ip);
+  // }//for(i_citiroc:n_citiroc)
 
   sendProbeRegisterSub(ip, reg_probe);
 
