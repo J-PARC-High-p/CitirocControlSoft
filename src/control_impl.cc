@@ -140,6 +140,23 @@ sendProbeRegister(const std::string& ip)
   femcitiroc::regRbcpType reg_probe = g_conf.copy_probereg();
 
   reg_citiroc_pin.reset( kSelectSc );
+
+  int mux_probe = g_conf.get_mux_probe();
+
+  if(mux_probe == 1){
+    reg_citiroc_pin.reset( kProbeMux1  );
+    reg_citiroc_pin.reset( kProbeMux2  );
+  }else if(mux_probe == 2){
+    reg_citiroc_pin.set( kProbeMux1  );
+    reg_citiroc_pin.reset( kProbeMux2  );
+  }else if(mux_probe == 3){
+    reg_citiroc_pin.reset( kProbeMux1  );
+    reg_citiroc_pin.set( kProbeMux2  );
+  }else{
+    reg_citiroc_pin.set( kProbeMux1  );
+    reg_citiroc_pin.set( kProbeMux2  );
+  }  
+
   // for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
   //   resetProbeRegister(ip);
   // }//for(i_citiroc:n_citiroc)
@@ -198,6 +215,14 @@ sendReadRegister(const std::string& ip)
   reg_module.set( kSelectRead );
   // resetReadRegister(ip);
 
+  int mux_analog = g_conf.get_mux_analog();
+
+  if(mux_analog == 0){ // m_reg_alias["Mux_HG"]
+    reg_citiroc_pin.reset( kAnalogMux  );
+  }else{
+    reg_citiroc_pin.set( kAnalogMux  );
+  }
+  
   sendReadRegisterSub(ip, reg);
 
   reg_module.reset( kSelectRead );
@@ -245,35 +270,16 @@ void
 sendSlowControl(const std::string& ip)
 {    
   femcitiroc::configLoader& g_conf = femcitiroc::configLoader::get_instance();
-  femcitiroc::regRbcpType reg_citiroc = g_conf.copy_screg();
+  femcitiroc::regRbcpType reg_citiroc[n_citiroc];
 
-  int mux_analog = g_conf.get_mux_analog();
-  int mux_probe = g_conf.get_mux_probe();
-
-  if(mux_analog == 0){ // m_reg_alias["Mux_HG"]
-    reg_citiroc_pin.reset( kAnalogMux  );
-  }else{
-    reg_citiroc_pin.set( kAnalogMux  );
-  }
-  
-  if(mux_probe == 1){
-    reg_citiroc_pin.reset( kProbeMux1  );
-    reg_citiroc_pin.reset( kProbeMux2  );
-  }else if(mux_probe == 2){
-    reg_citiroc_pin.set( kProbeMux1  );
-    reg_citiroc_pin.reset( kProbeMux2  );
-  }else if(mux_probe == 3){
-    reg_citiroc_pin.reset( kProbeMux1  );
-    reg_citiroc_pin.set( kProbeMux2  );
-  }else{
-    reg_citiroc_pin.set( kProbeMux1  );
-    reg_citiroc_pin.set( kProbeMux2  );
-  }
-  
   reg_citiroc_pin.set( kSelectSc );
   // resetSlowControl(ip);
+  
+  for(int i_citiroc = n_citiroc; i_citiroc > 0; i_citiroc--){
+    reg_citiroc[i_citiroc] = g_conf.copy_screg(i_citiroc);
+    sendSlowControlSub(ip, reg_citiroc[i_citiroc]);
+  }//for(i_citiroc:n_citiroc)
 
-  sendSlowControlSub(ip, reg_citiroc);
 }
 
 //_________________________________________________________________________
@@ -292,23 +298,23 @@ sendSlowControlSub(const std::string& ip,
   int n_reg = reg.size();
 
   const uint8_t *reg_slow = static_cast<const uint8_t*>(&reg[0]);
-  for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
+  // for(int i_citiroc = n_citiroc; i_citiroc > 0; i_citiroc--){
     fpga_module.WriteModule_nByte(HUL::CITIROC::ASIC::mid,
 				  HUL::CITIROC::ASIC::kAddrSlowControlFIFO,
 				  reg_slow, n_reg);
     std::cout << "#D: N_reg" << std::endl;
     std::cout << " - " << n_reg << std::endl;
-  }//for(i_citiroc:n_citiroc)
 #if DEBUG_ctrl
-  std::cout << "#D: Slow Control"
-	    << std::endl;
-  
-  for(uint32_t i = 0; i<reg.size(); ++i){
-    if(i%8 == 0) printf(" - ");
-    printf("%02x", reg[i]);
-    if(i%8 == 7 || i == reg.size() - 1) printf("\n");
-  }// for(reg)
+    std::cout << "#D: Slow Control"
+	      << std::endl;
+    
+    for(uint32_t i = 0; i<reg.size(); ++i){
+      if(i%8 == 0) printf(" - ");
+      printf("%02x", reg[i]);
+      if(i%8 == 7 || i == reg.size() - 1) printf("\n");
+    }// for(reg)
 #endif
+  // }//for(i_citiroc:n_citiroc)
   
   reg_module.set( kStartCycle );
   sendDirectControl(ip);

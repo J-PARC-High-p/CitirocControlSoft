@@ -36,7 +36,7 @@ namespace femcitiroc
     regRbcpType copy_probereg();
     regRbcpType copy_probereg_null();
     regRbcpType copy_readreg();
-    regRbcpType copy_screg();
+    regRbcpType copy_screg(int i_citiroc);
 
     int         get_mux_analog();
     int         get_mux_probe();
@@ -52,10 +52,16 @@ namespace femcitiroc
     // Registers (YAML base)
 #if CXX14
     std::map<std::string, uint32_t, std::less<>>   m_reg_alias;
-    std::map<std::string, Register, std::less<>>   m_screg_map;
+    std::map<std::string, Register, std::less<>>   m_screg1_map;
+    std::map<std::string, Register, std::less<>>   m_screg2_map;
+    std::map<std::string, Register, std::less<>>   m_screg3_map;
+    std::map<std::string, Register, std::less<>>   m_screg4_map;
 #else
     std::map<std::string, uint32_t>   m_reg_alias;
-    std::map<std::string, Register>   m_screg_map;
+    std::map<std::string, Register>   m_screg1_map;
+    std::map<std::string, Register>   m_screg2_map;
+    std::map<std::string, Register>   m_screg3_map;
+    std::map<std::string, Register>   m_screg4_map;
 #endif
     std::vector<std::string>                       m_screg_order;
 
