@@ -1,4 +1,4 @@
-CITIROC:
+CITIROC1:
   PreAMP: HGCf_50fF
   PreAMP: LGCf_50fF
   Time Constant HG Shaper: 50.0ns
@@ -18,3 +18,8 @@ Probe Channel: 15
 Probe: Out_fs
 Analog Mux: Mux_HG
 Probe Mux: 1
+
+CITIROC2:
+  EN_discri: Disable
+  RS_or_discri: trigger
+  En_discti_t: Disable

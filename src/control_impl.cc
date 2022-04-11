@@ -275,7 +275,7 @@ sendSlowControl(const std::string& ip)
   reg_citiroc_pin.set( kSelectSc );
   // resetSlowControl(ip);
   
-  for(int i_citiroc = n_citiroc; i_citiroc > 0; i_citiroc--){
+  for(int i_citiroc = n_citiroc; i_citiroc >= 0; i_citiroc--){
     reg_citiroc[i_citiroc] = g_conf.copy_screg(i_citiroc);
     sendSlowControlSub(ip, reg_citiroc[i_citiroc]);
   }//for(i_citiroc:n_citiroc)

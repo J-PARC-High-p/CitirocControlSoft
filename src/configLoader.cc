@@ -2556,7 +2556,7 @@ configLoader::read_YAML( const std::string& filename)
   }
 
   enum modeYAML{
-    is_citiroc1, is_module
+    is_citiroc1, is_citiroc2, is_citiroc3, is_citiroc4, is_module
   } present_mode = is_module;
 
   enum typeYAML{
@@ -2581,8 +2581,14 @@ configLoader::read_YAML( const std::string& filename)
     std::stringstream line_to_word(line);
     if(line[0] != ' ' && line[0] != '-'){
       getline(line_to_word, present_key, ':');
-      if(present_key == "CITIROC"){
+      if(present_key == "CITIROC1"){
 	present_mode = is_citiroc1;
+      }else if(present_key == "CITIROC2"){
+	present_mode = is_citiroc2;
+      }else if(present_key == "CITIROC3"){
+	present_mode = is_citiroc3;
+      }else if(present_key == "CITIROC4"){
+	present_mode = is_citiroc4;
       }else{
 	present_mode = is_module;
       }
@@ -2618,8 +2624,11 @@ configLoader::read_YAML( const std::string& filename)
       line_to_reg >> present_reg;
     }
 
-    auto itr = present_mode == is_module ? 
-      m_otherreg_map.find(present_key) : m_screg1_map.find(present_key);
+    auto itr = present_mode ==
+      is_citiroc1 ? m_screg1_map.find(present_key) :
+      is_citiroc2 ? m_screg2_map.find(present_key) :
+      is_citiroc3 ? m_screg3_map.find(present_key) :
+      is_citiroc4 ? m_screg4_map.find(present_key) : m_otherreg_map.find(present_key);
     
     if(present_mode == is_citiroc1){
 #if DEBUG
@@ -2630,6 +2639,51 @@ configLoader::read_YAML( const std::string& filename)
 #endif
 
       if(itr == m_screg1_map.end()){
+	std::cerr << "#E: " << func_name
+		  << " No such key (" << present_key << ")"
+		  << std::endl;	
+	
+	return -1;
+      }
+    }else if(present_mode == is_citiroc2){
+#if DEBUG
+      std::cout << "CITIROC2::" 
+		<< present_key << "::" 
+		<< present_reg << " (" << present_index << ")"
+		<< std::endl;
+#endif
+
+      if(itr == m_screg2_map.end()){
+	std::cerr << "#E: " << func_name
+		  << " No such key (" << present_key << ")"
+		  << std::endl;	
+	
+	return -1;
+      }
+    }else if(present_mode == is_citiroc3){
+#if DEBUG
+      std::cout << "CITIROC3::" 
+		<< present_key << "::" 
+		<< present_reg << " (" << present_index << ")"
+		<< std::endl;
+#endif
+
+      if(itr == m_screg3_map.end()){
+	std::cerr << "#E: " << func_name
+		  << " No such key (" << present_key << ")"
+		  << std::endl;	
+	
+	return -1;
+      }
+    }else if(present_mode == is_citiroc4){
+#if DEBUG
+      std::cout << "CITIROC4::" 
+		<< present_key << "::" 
+		<< present_reg << " (" << present_index << ")"
+		<< std::endl;
+#endif
+
+      if(itr == m_screg4_map.end()){
 	std::cerr << "#E: " << func_name
 		  << " No such key (" << present_key << ")"
 		  << std::endl;	
