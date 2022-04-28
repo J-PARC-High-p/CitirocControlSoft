@@ -2,7 +2,7 @@
 #include"UDPRBCP.hh"
 #include<iostream>
 
-#define DEBUG_fpga 1
+#define UDP_off 1
 
 namespace HUL{
 
@@ -87,7 +87,7 @@ FPGAModule::WriteModule_nByte(const uint32_t module_id,
 
   int32_t ret = 0;
 
-#ifndef DEBUG_fpga
+#ifndef UDP_off
   // udp_rbcp_.SetDispMode(RBCP::UDPRBCP::kDebug);
   udp_rbcp_.SetWD(udp_addr, n_byte, write_data);
 
@@ -114,7 +114,7 @@ FPGAModule::ReadModule_nByte(const uint32_t module_id,
 
   int32_t ret = 0;
 
-#ifndef DEBUG_fpga
+#ifndef UDP_off
   udp_rbcp_.SetRD(udp_addr, n_byte);
   if((ret = udp_rbcp_.DoRBCP()) > -1){ udp_rbcp_.CopyRD(rd_data_); }
 #endif

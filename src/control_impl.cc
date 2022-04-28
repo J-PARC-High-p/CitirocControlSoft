@@ -270,12 +270,12 @@ void
 sendSlowControl(const std::string& ip)
 {    
   femcitiroc::configLoader& g_conf = femcitiroc::configLoader::get_instance();
-  femcitiroc::regRbcpType reg_citiroc[n_citiroc];
+  femcitiroc::regRbcpType reg_citiroc[n_citiroc + 1];
 
   reg_citiroc_pin.set( kSelectSc );
   // resetSlowControl(ip);
   
-  for(int i_citiroc = n_citiroc; i_citiroc >= 0; i_citiroc--){
+  for(int i_citiroc = n_citiroc; i_citiroc > 0; i_citiroc--){
     reg_citiroc[i_citiroc] = g_conf.copy_screg(i_citiroc);
     sendSlowControlSub(ip, reg_citiroc[i_citiroc]);
   }//for(i_citiroc:n_citiroc)

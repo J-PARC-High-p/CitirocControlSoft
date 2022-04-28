@@ -143,6 +143,8 @@ configLoader::copy_readreg()
   auto itr = m_otherreg_map.find("High Gain Channel");
   uint32_t channel = (itr->second).reg[0];
 
+  std::cout << "#D: Read channel : " << channel << std::endl;
+  
   Register cont = itr->second;
   cont.reg[0] = channel;
   fill_bit(cont);
@@ -163,7 +165,7 @@ configLoader::copy_screg(int i_citiroc = 1)
   m_bit_rbcp.clear();
   m_reg_rbcp.clear();
 
-  if(i_citiroc == 0){
+  if(i_citiroc == 1){
     auto itr_end = m_screg1_map.end();
     //  for( const auto& reg_name : m_screg_order){
     for( uint32_t i = 0; i<m_screg_order.size(); ++i){
@@ -179,7 +181,7 @@ configLoader::copy_screg(int i_citiroc = 1)
 		  << std::endl;
       }
     }// for(screg_order)
-  }else if(i_citiroc == 1){
+  }else if(i_citiroc == 2){
     auto itr_end = m_screg2_map.end();
     //  for( const auto& reg_name : m_screg_order){
     for( uint32_t i = 0; i<m_screg_order.size(); ++i){
@@ -195,7 +197,7 @@ configLoader::copy_screg(int i_citiroc = 1)
 		  << std::endl;
       }
     }// for(screg_order)
-  }else if(i_citiroc == 2){
+  }else if(i_citiroc == 3){
     auto itr_end = m_screg3_map.end();
     //  for( const auto& reg_name : m_screg_order){
     for( uint32_t i = 0; i<m_screg_order.size(); ++i){
@@ -211,7 +213,7 @@ configLoader::copy_screg(int i_citiroc = 1)
 		  << std::endl;
       }
     }// for(screg_order)
-  }else{
+  }else if(i_citiroc == 4){
     auto itr_end = m_screg4_map.end();
     //  for( const auto& reg_name : m_screg_order){
     for( uint32_t i = 0; i<m_screg_order.size(); ++i){
@@ -236,6 +238,7 @@ configLoader::copy_screg(int i_citiroc = 1)
   std::cout << func_name << std::endl;
   // print(m_reg_rbcp, "CITIROC");
 #endif
+
   return m_reg_rbcp;
 }
 
@@ -1877,7 +1880,7 @@ configLoader::initialize_slowcontrol_register()
     Register cont = {15, msb2lsb, false, 
 		     {
 		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
-		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30686,
+		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
 		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
 		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680
 		     }};
@@ -2335,7 +2338,7 @@ configLoader::initialize_slowcontrol_register()
     Register cont = {15, msb2lsb, false, 
 		     {
 		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
-		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30686,
+		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
 		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
 		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680
 		     }};
@@ -2624,11 +2627,11 @@ configLoader::read_YAML( const std::string& filename)
       line_to_reg >> present_reg;
     }
 
-    auto itr = present_mode ==
-      is_citiroc1 ? m_screg1_map.find(present_key) :
-      is_citiroc2 ? m_screg2_map.find(present_key) :
-      is_citiroc3 ? m_screg3_map.find(present_key) :
-      is_citiroc4 ? m_screg4_map.find(present_key) : m_otherreg_map.find(present_key);
+    auto itr = (present_mode == is_module)   ? m_otherreg_map.find(present_key) :
+               (present_mode == is_citiroc1) ? m_screg1_map.find(present_key) :
+               (present_mode == is_citiroc2) ? m_screg2_map.find(present_key) :
+               (present_mode == is_citiroc3) ? m_screg3_map.find(present_key) :
+	                                       m_screg4_map.find(present_key);
     
     if(present_mode == is_citiroc1){
 #if DEBUG
@@ -2773,6 +2776,10 @@ configLoader::read_YAML( const std::string& filename)
       }
 
       cont.reg[present_index] = val;
+      if(present_key == "High Gain Channel"){
+	std::cout << "#D: Present mode : " << present_mode << std::endl;
+	std::cout << "#D: High Gain Channel : " << cont.reg[present_index] << std::endl;
+      }
     }
       
     if(present_type == is_array) ++present_index;
