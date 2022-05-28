@@ -27,40 +27,49 @@ configLoader::copy_probereg()
 {
   static const std::string func_name = "["+class_name+"::"+__func__+"()]";
 
+  uint32_t n_channel_asic = 32;
+  
   m_bit_rbcp.clear();
   m_reg_rbcp.clear();
   auto itr_out_type    = m_otherreg_map.find("Probe");
   auto itr_out_channel = m_otherreg_map.find("Probe Channel");
   probeType out_type     =  static_cast<probeType>((itr_out_type->second).reg[0]);
-  uint32_t  out_position =  (itr_out_channel->second).reg[0];
+  uint32_t  out_channel =  (itr_out_channel->second).reg[0];
   auto itr_digital_type    = m_otherreg_map.find("Digital Probe");
   auto itr_digital_channel = m_otherreg_map.find("Digital Probe Channel");
   probeType digital_type     =  static_cast<probeType>((itr_digital_type->second).reg[0]);
-  uint32_t  digital_position =  (itr_digital_channel->second).reg[0];
+  uint32_t  digital_channel =  (itr_digital_channel->second).reg[0];
   auto itr_dac_type    = m_otherreg_map.find("DAC Probe");
   auto itr_dac_channel = m_otherreg_map.find("DAC Probe Channel");
   probeType dac_type     =  static_cast<probeType>((itr_dac_type->second).reg[0]);
-  uint32_t  dac_position =  (itr_dac_channel->second).reg[0];
+  uint32_t  dac_channel =  (itr_dac_channel->second).reg[0];
+
+  uint32_t out_position = out_channel%n_channel_asic;
+  uint32_t out_asic = out_channel/n_channel_asic;
+  uint32_t digital_position = digital_channel%n_channel_asic;
+  uint32_t digital_asic = digital_channel/n_channel_asic;
+  uint32_t dac_position = dac_channel%n_channel_asic;
+  uint32_t dac_asic = dac_channel/n_channel_asic;
 
   switch(out_type){
   case is_out_pa_hg:
-    out_position = 160 + out_position*2;
+    out_position = 160 + out_position*2 + out_asic*256;
     printf("out_type : %d\n",out_position);
     break;
   case is_out_pa_lg:
-    out_position = 160 + out_position*2 +1;
+    out_position = 160 + out_position*2 + 1 + out_asic*256;
     printf("out_type : %d\n",out_position);
     break;
   case is_out_ssh_hg:
-    out_position = 96 + out_position;
+    out_position = 96 + out_position + out_asic*256;
     printf("out_type : %d\n",out_position);
     break;
   case is_out_ssh_lg:
-    out_position = 32 + out_position;
+    out_position = 32 + out_position + out_asic*256;
     printf("out_type : %d\n",out_position);
     break;
   case is_out_fs:
-    out_position = out_position;
+    out_position = out_position + out_asic*256;
     printf("out_type : %d\n",out_position);
     break;
   default:
@@ -69,11 +78,11 @@ configLoader::copy_probereg()
 
   switch(digital_type){
   case is_peak_sensing_modeb_hg:
-    digital_position = 64 + digital_position;
+    digital_position = 64 + digital_position + digital_asic*256;
     printf("digital_type : %d\n",digital_position);
     break;
   case is_peak_sensing_modeb_lg:
-    digital_position = 128 + digital_position;
+    digital_position = 128 + digital_position + digital_asic*256;
     printf("digital_type : %d\n",digital_position);
     break;
   default:
@@ -82,14 +91,14 @@ configLoader::copy_probereg()
 
   switch(dac_type){
   case is_input_dac:
-    dac_position = 224 + dac_position;
+    dac_position = 224 + dac_position + dac_asic*256;
     printf("daq_type : %d\n",dac_position);
     break;
   default:
     break;
   }
 
-  m_bit_rbcp.resize(256);
+  m_bit_rbcp.resize(256*n_citiroc);
   for(auto itr = m_bit_rbcp.begin(); itr != m_bit_rbcp.end(); ++itr){
     *itr = false;
   }
@@ -98,16 +107,16 @@ configLoader::copy_probereg()
       m_bit_rbcp[out_position]     = true;
     // }//for(i_citiroc:n_citiroc)
   }//if(out_type)
-  // if(out_type != is_out_none){
-  //   // for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
-  //     m_bit_rbcp[digital_position] = true;
-  //   // }//for(i_citiroc:n_citiroc)
-  // }//if(out_type)
-  // if(out_type != is_out_none){
-  //   // for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
-  //     m_bit_rbcp[dac_position]     = true;
-  //   // }//for(i_citiroc:n_citiroc)
-  // }//if(out_type)
+  if(out_type != is_out_none){
+    // for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
+      m_bit_rbcp[digital_position] = true;
+    // }//for(i_citiroc:n_citiroc)
+  }//if(out_type)
+  if(out_type != is_out_none){
+    // for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
+      m_bit_rbcp[dac_position]     = true;
+    // }//for(i_citiroc:n_citiroc)
+  }//if(out_type)
 
   translate_bit2reg();
   reverse(m_reg_rbcp.begin(), m_reg_rbcp.end());
@@ -138,6 +147,9 @@ configLoader::copy_readreg()
 {
   static const std::string func_name = "["+class_name+"::"+__func__+"()]";
 
+  const int n_read_asic = 33;
+  const int n_channel_asic = 32;
+  
   m_bit_rbcp.clear();
   m_reg_rbcp.clear();
   auto itr = m_otherreg_map.find("High Gain Channel");
@@ -145,11 +157,15 @@ configLoader::copy_readreg()
 
   std::cout << "#D: Read channel : " << channel << std::endl;
   
-  Register cont = itr->second;
-  cont.reg[0] = channel;
-  fill_bit(cont);
-
+  int read_position = channel%n_channel_asic;
+  int read_asic = channel/n_channel_asic;
+  read_position = read_position + n_read_asic*read_asic;
+  
+  m_bit_rbcp.resize(34*n_citiroc);
+  m_bit_rbcp[read_position] = true;
+  
   translate_bit2reg();
+  reverse(m_reg_rbcp.begin(), m_reg_rbcp.end());
 #if DEBUG
   // print(m_reg_rbcp, "Read Slow Control");
 #endif
@@ -2757,17 +2773,18 @@ configLoader::read_YAML( const std::string& filename)
       uint32_t val = 0;
       std::stringstream reg_to_val(present_reg);
 
-      if(present_key == "High Gain Channel"){
-	uint32_t reg_ch = 0;
-	reg_to_val >> reg_ch;
-	int channel = static_cast<int>(reg_ch);
-        int quotient = channel/8;
-	int surplus = channel%8;
-	int index = 8*quotient - surplus +7;
-	std::cout << "index : " << index << std::endl;
-	val = static_cast<uint32_t>(1<<index);
-	std::cout << "val : " << val << std::endl;
-      }else if(present_key == "Input 8-bit DAC"){
+      // if(present_key == "High Gain Channel"){
+      // 	uint32_t reg_ch = 0;
+      // 	reg_to_val >> reg_ch;
+      // 	int channel = static_cast<int>(reg_ch);
+      //   int quotient = channel/8;
+      // 	int surplus = channel%8;
+      // 	int index = 8*quotient - surplus +7;
+      // 	std::cout << "index : " << index << std::endl;
+      // 	val = static_cast<uint32_t>(1<<index);
+      // 	std::cout << "val : " << val << std::endl;
+      // }else if(present_key == "Input 8-bit DAC"){
+      if(present_key == "Input 8-bit DAC"){
 	uint32_t idac_onoff = cont.reg[present_index] & 0x1;
 	reg_to_val >> val;
 	val = (val << 1) | idac_onoff;
