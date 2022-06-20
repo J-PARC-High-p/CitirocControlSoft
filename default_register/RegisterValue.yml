@@ -1,11 +1,56 @@
 CITIROC1:
-  PreAMP: HGCf_50fF
-  PreAMP: LGCf_50fF
+  PreAMP: HGCf_200fF
+  PreAMP: LGCf_200fF
   Time Constant HG Shaper: 50.0ns
   Time Constant LG Shaper: 50.0ns
   DAC1 code: 1000
-  DAC2 code: 195
-  8-bit DAC reference: 4.5V
+  DAC2 code: 205
+  8-bit DAC reference: 2.5V
+  EN_LG_T&H(Widlar SCA): Enable
+  EN_LG_Pdet: Enable
+  En_Low_Gain_Slow Shaper: Enable
+  En_High_Gain_Slow Shaper: Enable
+  LG PA bias: weakbias
+  EN_Low_Gain_PA: Enable
+  EN_Probe OTAq: Enable
+CITIROC2:
+  PreAMP: HGCf_200fF
+  PreAMP: LGCf_200fF
+  Time Constant HG Shaper: 50.0ns
+  Time Constant LG Shaper: 50.0ns
+  DAC1 code: 1000
+  DAC2 code: 900
+  8-bit DAC reference: 2.5V
+  EN_LG_T&H(Widlar SCA): Enable
+  EN_LG_Pdet: Enable
+  En_Low_Gain_Slow Shaper: Enable
+  En_High_Gain_Slow Shaper: Enable
+  LG PA bias: weakbias
+  EN_Low_Gain_PA: Enable
+  EN_Probe OTAq: Enable
+CITIROC3:
+  PreAMP: HGCf_200fF
+  PreAMP: LGCf_200fF
+  Time Constant HG Shaper: 50.0ns
+  Time Constant LG Shaper: 50.0ns
+  DAC1 code: 1000
+  DAC2 code: 900
+  8-bit DAC reference: 2.5V
+  EN_LG_T&H(Widlar SCA): Enable
+  EN_LG_Pdet: Enable
+  En_Low_Gain_Slow Shaper: Enable
+  En_High_Gain_Slow Shaper: Enable
+  LG PA bias: weakbias
+  EN_Low_Gain_PA: Enable
+  EN_Probe OTAq: Enable
+CITIROC4:
+  PreAMP: HGCf_200fF
+  PreAMP: LGCf_200fF
+  Time Constant HG Shaper: 50.0ns
+  Time Constant LG Shaper: 50.0ns
+  DAC1 code: 1000
+  DAC2 code: 900
+  8-bit DAC reference: 2.5V
   EN_LG_T&H(Widlar SCA): Enable
   EN_LG_Pdet: Enable
   En_Low_Gain_Slow Shaper: Enable
