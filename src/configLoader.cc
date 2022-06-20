@@ -7,6 +7,8 @@
 #include<algorithm>
 #include<math.h>
 
+#define DEBUG 1
+
 static const std::string class_name = "configLoader";
 
 using namespace femcitiroc;
@@ -25,36 +27,50 @@ configLoader::copy_probereg()
 {
   static const std::string func_name = "["+class_name+"::"+__func__+"()]";
 
+  uint32_t n_channel_asic = 32;
+  
   m_bit_rbcp.clear();
   m_reg_rbcp.clear();
   auto itr_out_type    = m_otherreg_map.find("Probe");
   auto itr_out_channel = m_otherreg_map.find("Probe Channel");
   probeType out_type     =  static_cast<probeType>((itr_out_type->second).reg[0]);
-  uint32_t  out_position =  (itr_out_channel->second).reg[0];
+  uint32_t  out_channel =  (itr_out_channel->second).reg[0];
   auto itr_digital_type    = m_otherreg_map.find("Digital Probe");
   auto itr_digital_channel = m_otherreg_map.find("Digital Probe Channel");
   probeType digital_type     =  static_cast<probeType>((itr_digital_type->second).reg[0]);
-  uint32_t  digital_position =  (itr_digital_channel->second).reg[0];
+  uint32_t  digital_channel =  (itr_digital_channel->second).reg[0];
   auto itr_dac_type    = m_otherreg_map.find("DAC Probe");
   auto itr_dac_channel = m_otherreg_map.find("DAC Probe Channel");
   probeType dac_type     =  static_cast<probeType>((itr_dac_type->second).reg[0]);
-  uint32_t  dac_position =  (itr_dac_channel->second).reg[0];
+  uint32_t  dac_channel =  (itr_dac_channel->second).reg[0];
+
+  uint32_t out_position = out_channel%n_channel_asic;
+  uint32_t out_asic = out_channel/n_channel_asic;
+  uint32_t digital_position = digital_channel%n_channel_asic;
+  uint32_t digital_asic = digital_channel/n_channel_asic;
+  uint32_t dac_position = dac_channel%n_channel_asic;
+  uint32_t dac_asic = dac_channel/n_channel_asic;
 
   switch(out_type){
   case is_out_pa_hg:
-    out_position = 160 + out_position*2;
+    out_position = 160 + out_position*2 + out_asic*256;
+    printf("out_type : %d\n",out_position);
     break;
   case is_out_pa_lg:
-    out_position = 160 + out_position*2 +1;
+    out_position = 160 + out_position*2 + 1 + out_asic*256;
+    printf("out_type : %d\n",out_position);
     break;
   case is_out_ssh_hg:
-    out_position = 96 + out_position;
+    out_position = 96 + out_position + out_asic*256;
+    printf("out_type : %d\n",out_position);
     break;
   case is_out_ssh_lg:
-    out_position = 32 + out_position;
+    out_position = 32 + out_position + out_asic*256;
+    printf("out_type : %d\n",out_position);
     break;
   case is_out_fs:
-    out_position = out_position;
+    out_position = out_position + out_asic*256;
+    printf("out_type : %d\n",out_position);
     break;
   default:
     break;
@@ -62,10 +78,12 @@ configLoader::copy_probereg()
 
   switch(digital_type){
   case is_peak_sensing_modeb_hg:
-    digital_position = 64 + digital_position;
+    digital_position = 64 + digital_position + digital_asic*256;
+    printf("digital_type : %d\n",digital_position);
     break;
   case is_peak_sensing_modeb_lg:
-    digital_position = 128 + digital_position;
+    digital_position = 128 + digital_position + digital_asic*256;
+    printf("digital_type : %d\n",digital_position);
     break;
   default:
     break;
@@ -73,24 +91,37 @@ configLoader::copy_probereg()
 
   switch(dac_type){
   case is_input_dac:
-    dac_position = 224 + dac_position;
+    dac_position = 224 + dac_position + dac_asic*256;
+    printf("daq_type : %d\n",dac_position);
     break;
   default:
     break;
   }
 
-  m_bit_rbcp.resize(256);
+  m_bit_rbcp.resize(256*n_citiroc);
   for(auto itr = m_bit_rbcp.begin(); itr != m_bit_rbcp.end(); ++itr){
     *itr = false;
   }
-  if(out_type != is_out_none) m_bit_rbcp[out_position]     = true;
-  if(out_type != is_out_none) m_bit_rbcp[digital_position] = true;
-  if(out_type != is_out_none) m_bit_rbcp[dac_position]     = true;
+  if(out_type != is_out_none){
+    // for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
+      m_bit_rbcp[out_position]     = true;
+    // }//for(i_citiroc:n_citiroc)
+  }//if(out_type)
+  if(out_type != is_out_none){
+    // for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
+      m_bit_rbcp[digital_position] = true;
+    // }//for(i_citiroc:n_citiroc)
+  }//if(out_type)
+  if(out_type != is_out_none){
+    // for(int i_citiroc = 0; i_citiroc < n_citiroc; i_citiroc++){
+      m_bit_rbcp[dac_position]     = true;
+    // }//for(i_citiroc:n_citiroc)
+  }//if(out_type)
 
   translate_bit2reg();
   reverse(m_reg_rbcp.begin(), m_reg_rbcp.end());
 #if DEBUG
-  print(m_reg_rbcp, "Probe Slow Control");
+  // print(m_reg_rbcp, "Probe Slow Control");
 #endif
   return m_reg_rbcp;
 }
@@ -104,7 +135,7 @@ configLoader::copy_probereg_null()
   for(uint32_t i = 0; i<m_reg_rbcp.size(); ++i) m_reg_rbcp[i] = 0;
 
 #if DEBUG
-  print(m_reg_rbcp, "Probe Slow Control (NULL)");
+  // print(m_reg_rbcp, "Probe Slow Control (NULL)");
 #endif
 
   return m_reg_rbcp;
@@ -116,54 +147,149 @@ configLoader::copy_readreg()
 {
   static const std::string func_name = "["+class_name+"::"+__func__+"()]";
 
+  const int n_read_asic = 33;
+  const int n_channel_asic = 32;
+  
   m_bit_rbcp.clear();
   m_reg_rbcp.clear();
   auto itr = m_otherreg_map.find("High Gain Channel");
   uint32_t channel = (itr->second).reg[0];
 
-  Register cont = itr->second;
-  cont.reg[0] = channel;
-  fill_bit(cont);
-
+  std::cout << "#D: Read channel : " << channel << std::endl;
+  
+  int read_position = channel%n_channel_asic;
+  int read_asic = channel/n_channel_asic;
+  read_position = read_position + n_read_asic*read_asic;
+  
+  m_bit_rbcp.resize(34*n_citiroc);
+  m_bit_rbcp[read_position] = true;
+  
   translate_bit2reg();
+  reverse(m_reg_rbcp.begin(), m_reg_rbcp.end());
 #if DEBUG
-  print(m_reg_rbcp, "Read Slow Control");
+  // print(m_reg_rbcp, "Read Slow Control");
 #endif
   return m_reg_rbcp;
 }
 
 // -----------------------------------------------------------------------
 regRbcpType
-configLoader::copy_screg()
+configLoader::copy_screg(int i_citiroc = 1)
 {
   static const std::string func_name = "["+class_name+"::"+__func__+"()]";
 
   m_bit_rbcp.clear();
   m_reg_rbcp.clear();
-  auto itr_end = m_screg_map.end();
-  //  for( const auto& reg_name : m_screg_order){
-  for( uint32_t i = 0; i<m_screg_order.size(); ++i){
-    auto& reg_name = m_screg_order[i];
-    auto itr = m_screg_map.find(reg_name);
-    if(itr != itr_end){
-      fill_bit(itr->second);
-    }else{
-      // Not found
-      std::cerr << "#E: "
-		<< func_name 
-		<< " No such register key [" << reg_name << "]"
-		<< std::endl;
-    }
-  }// for(screg_order)
 
+  if(i_citiroc == 1){
+    auto itr_end = m_screg1_map.end();
+    //  for( const auto& reg_name : m_screg_order){
+    for( uint32_t i = 0; i<m_screg_order.size(); ++i){
+      auto& reg_name = m_screg_order[i];
+      auto itr = m_screg1_map.find(reg_name);
+      if(itr != itr_end){
+	fill_bit(itr->second);
+      }else{
+	// Not found
+	std::cerr << "#E: "
+		  << func_name 
+		  << " No such register key [" << reg_name << "] in CITIROC1"
+		  << std::endl;
+      }
+    }// for(screg_order)
+  }else if(i_citiroc == 2){
+    auto itr_end = m_screg2_map.end();
+    //  for( const auto& reg_name : m_screg_order){
+    for( uint32_t i = 0; i<m_screg_order.size(); ++i){
+      auto& reg_name = m_screg_order[i];
+      auto itr = m_screg2_map.find(reg_name);
+      if(itr != itr_end){
+	fill_bit(itr->second);
+      }else{
+	// Not found
+	std::cerr << "#E: "
+		  << func_name 
+		  << " No such register key [" << reg_name << "] in CITIROC2"
+		  << std::endl;
+      }
+    }// for(screg_order)
+  }else if(i_citiroc == 3){
+    auto itr_end = m_screg3_map.end();
+    //  for( const auto& reg_name : m_screg_order){
+    for( uint32_t i = 0; i<m_screg_order.size(); ++i){
+      auto& reg_name = m_screg_order[i];
+      auto itr = m_screg3_map.find(reg_name);
+      if(itr != itr_end){
+	fill_bit(itr->second);
+      }else{
+	// Not found
+	std::cerr << "#E: "
+		  << func_name 
+		  << " No such register key [" << reg_name << "] in CITIROC3"
+		  << std::endl;
+      }
+    }// for(screg_order)
+  }else if(i_citiroc == 4){
+    auto itr_end = m_screg4_map.end();
+    //  for( const auto& reg_name : m_screg_order){
+    for( uint32_t i = 0; i<m_screg_order.size(); ++i){
+      auto& reg_name = m_screg_order[i];
+      auto itr = m_screg4_map.find(reg_name);
+      if(itr != itr_end){
+	fill_bit(itr->second);
+      }else{
+	// Not found
+	std::cerr << "#E: "
+		  << func_name 
+		  << " No such register key [" << reg_name << "] in CITIROC4"
+		  << std::endl;
+      }
+    }// for(screg_order)
+  }//if(i_citiroc)
+  
   translate_bit2reg();
   reverse(m_reg_rbcp.begin(), m_reg_rbcp.end());
 
 #if DEBUG
   std::cout << func_name << std::endl;
-  print(m_reg_rbcp, "CITIROC");
+  // print(m_reg_rbcp, "CITIROC");
 #endif
+
   return m_reg_rbcp;
+}
+
+// -----------------------------------------------------------------------
+int
+configLoader::get_mux_analog()
+{
+  static const std::string func_name = "["+class_name+"::"+__func__+"()]";
+
+  auto itr = m_otherreg_map.find("Analog Mux");
+  uint32_t channel = (itr->second).reg[0];
+
+#if DEBUG
+  std::cout << func_name << std::endl;
+  std::cout << " - " << channel << std::endl;
+#endif
+  
+  return channel;
+}
+
+// -----------------------------------------------------------------------
+int
+configLoader::get_mux_probe()
+{
+  static const std::string func_name = "["+class_name+"::"+__func__+"()]";
+
+  auto itr = m_otherreg_map.find("Probe Mux");
+  uint32_t channel = (itr->second).reg[0];
+
+#if DEBUG
+  std::cout << func_name << std::endl;
+  std::cout << " - " << channel << std::endl;
+#endif
+
+  return channel;
 }
 
 // -----------------------------------------------------------------------
@@ -364,6 +490,10 @@ configLoader::initialize_alias()
   m_reg_alias["Out_ssh_HG"] = is_out_ssh_hg;
   m_reg_alias["Out_ssh_LG"] = is_out_ssh_lg;
   m_reg_alias["Out_fs"]     = is_out_fs;
+
+  // Analog MUX
+  m_reg_alias["Mux_HG"] = 0;
+  m_reg_alias["Mux_LG"] = 1;
 }
 
 // -----------------------------------------------------------------------
@@ -466,6 +596,22 @@ configLoader::initialize_other_register()
     Register cont = {16, msb2lsb, false, {0}};
     m_otherreg_map.insert(std::make_pair(name, cont));
   }
+
+  // Analog Mux
+  {
+    // Internal
+    const std::string name = "Analog Mux";
+    Register cont = {1, msb2lsb, false, {m_reg_alias["Mux_HG"]}};
+    m_otherreg_map.insert(std::make_pair(name, cont));
+  }
+
+  // Probe Mux
+  {
+    // Internal
+    const std::string name = "Probe Mux";
+    Register cont = {2, msb2lsb, false, {1}};
+    m_otherreg_map.insert(std::make_pair(name, cont));
+  }
 }
 
 // -----------------------------------------------------------------------
@@ -474,6 +620,7 @@ configLoader::initialize_slowcontrol_register()
 {
   // Register cont = {nbits, bit_order, active_low, {reg(vector)}};
 
+  // Register for CITIROC1
   {
     const std::string name = "Channel 0 to 31 4-bit_t";
     Register cont = {4, lsb2msb, false, 
@@ -483,7 +630,7 @@ configLoader::initialize_slowcontrol_register()
 		       0, 0, 0, 0, 0, 0, 0, 0,
 		       0, 0, 0, 0, 0, 0, 0, 0
 		     }};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
@@ -496,70 +643,70 @@ configLoader::initialize_slowcontrol_register()
 		       0, 0, 0, 0, 0, 0, 0, 0,
 		       0, 0, 0, 0, 0, 0, 0, 0
 		     }};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "EN_discri";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "PP: Discriminator";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "RS_or_discri";
     Register cont = {1, lsb2msb, false, {m_reg_alias["trigger"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "EN_discri_t";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "PP: Discriminator_t";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "4b_dac";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "PP: 4b_dac";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "4b_dac_t";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "PP: 4b_dac_t";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
@@ -572,217 +719,217 @@ configLoader::initialize_slowcontrol_register()
 		       0, 0, 0, 0, 0, 0, 0, 0,
 		       0, 0, 0, 0, 0, 0, 0, 0
 		     }};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "PP: HG T&H(Widlar SCA)";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "EN_HG_T&H(Widlar SCA)";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "PP: LG T&H(Widlar SCA)";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "EN_LG_T&H(Widlar SCA)";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "SCA bias";
     Register cont = {1, lsb2msb, false, {m_reg_alias["weakbias"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "PP: HG Pdet";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "EN_HG_Pdet";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "PP: LG Pdet";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "EN_LG_Pdet";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "Sel SCA or PeakD HG";
     Register cont = {1, lsb2msb, false, {m_reg_alias["SCA"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "Sel SCA or PeakD LG";
     Register cont = {1, lsb2msb, false, {m_reg_alias["SCA"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "bypass PSC";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "Sel Trig Ext PSC";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "PP: Fast Shapers Follower";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "EN_Fast Shaper";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "PP: Fast Shaper";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "PP: Low Gain Slow Shaper";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "En_Low_Gain_Slow Shaper";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "Time Constant LG Shaper";
     Register cont = {3, lsb2msb, true,  {m_reg_alias["12.5ns"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "PP: High Gain Slow Shaper";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "En_High_Gain_Slow Shaper";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "Time Constant HG Shaper";
     Register cont = {3, lsb2msb, true,  {m_reg_alias["12.5ns"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "LG PA bias";
     Register cont = {1, lsb2msb, false, {m_reg_alias["weakbias"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "PP: High Gain PreAmplifier";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "EN_High_Gain_PA";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "PP: Low Gain PreAmplifier";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "EN_Low_Gain_PA";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "Fast Shaper on LG";
     Register cont = {1, lsb2msb, false, {m_reg_alias["HG"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "EN_input_dac";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
   {
     const std::string name = "8-bit DAC reference";
     Register cont = {1, lsb2msb, false, {m_reg_alias["4.5V"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
   }
 
@@ -796,8 +943,494 @@ configLoader::initialize_slowcontrol_register()
 		       1, 1, 1, 1, 1, 1, 1, 1,
 		       1, 1, 1, 1, 1, 1, 1, 1
 		     }};
-    m_screg_map.insert(std::make_pair(name, cont));
+    m_screg1_map.insert(std::make_pair(name, cont));
     m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "PreAMP";
+    Register cont = {15, msb2lsb, false, 
+		     {
+		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
+		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30686,
+		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
+		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680
+		     }};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "PP: Temp";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "EN_Temp";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "PP: BandGap";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "EN_BandGap";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "EN_DAC1";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "PP: DAC1";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "EN_DAC2";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "PP: DAC2";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "DAC1 code";
+    Register cont = {10, msb2lsb, false, {256}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "DAC2 code";
+    Register cont = {10, msb2lsb, false, {256}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "EN_High Gain OTAq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "PP: High Gain OTAq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "EN_Low Gain OTAq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "PP: Low Gain OTAq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "EN_Probe OTAq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "PP: Probe OTAq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "Testb_Otaq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "EN_Val_Evt receiver";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "PP: Val_Evt receiver";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "EN_Raz_Chn receiver";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "PP: Raz Chn receiver";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "EN_out_deg";
+    Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "EN_OR32";
+    Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "EN_NOR32_oc";
+    Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "Trigger Polarity";
+    Register cont = {1, lsb2msb, false,  {m_reg_alias["Disable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "EN_NOR32T_oc";
+    Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  {
+    const std::string name = "EN_32 triggers";
+    Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
+    m_screg1_map.insert(std::make_pair(name, cont));
+    m_screg_order.push_back(name);
+  }
+
+  // Register for CITIROC2
+  {
+    const std::string name = "Channel 0 to 31 4-bit_t";
+    Register cont = {4, lsb2msb, false, 
+		     {
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0
+		     }};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Channel 0 to 31 4-bit";
+    Register cont = {4, lsb2msb, false, 
+		     {
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0
+		     }};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_discri";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Discriminator";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "RS_or_discri";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["trigger"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_discri_t";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Discriminator_t";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "4b_dac";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: 4b_dac";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "4b_dac_t";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: 4b_dac_t";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Discriminator Mask";
+    Register cont = {1, lsb2msb, true, 
+		     {
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0
+		     }};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: HG T&H(Widlar SCA)";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_HG_T&H(Widlar SCA)";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: LG T&H(Widlar SCA)";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_LG_T&H(Widlar SCA)";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "SCA bias";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["weakbias"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: HG Pdet";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_HG_Pdet";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: LG Pdet";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_LG_Pdet";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Sel SCA or PeakD HG";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["SCA"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Sel SCA or PeakD LG";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["SCA"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "bypass PSC";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Sel Trig Ext PSC";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Fast Shapers Follower";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_Fast Shaper";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Fast Shaper";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Low Gain Slow Shaper";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "En_Low_Gain_Slow Shaper";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Time Constant LG Shaper";
+    Register cont = {3, lsb2msb, true,  {m_reg_alias["12.5ns"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: High Gain Slow Shaper";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "En_High_Gain_Slow Shaper";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Time Constant HG Shaper";
+    Register cont = {3, lsb2msb, true,  {m_reg_alias["12.5ns"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "LG PA bias";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["weakbias"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: High Gain PreAmplifier";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_High_Gain_PA";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Low Gain PreAmplifier";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_Low_Gain_PA";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Fast Shaper on LG";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["HG"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_input_dac";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "8-bit DAC reference";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["4.5V"]}};
+    m_screg2_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Input 8-bit DAC";
+    Register cont = {9, msb2lsb, false,
+		     //    Register cont = {9, lsb2msb, false, 
+		     {
+		       1, 1, 1, 1, 1, 1, 1, 1,
+		       1, 1, 1, 1, 1, 1, 1, 1,
+		       1, 1, 1, 1, 1, 1, 1, 1,
+		       1, 1, 1, 1, 1, 1, 1, 1
+		     }};
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
@@ -809,199 +1442,1087 @@ configLoader::initialize_slowcontrol_register()
 		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
 		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680
 		     }};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "PP: Temp";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "EN_Temp";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "PP: BandGap";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "EN_BandGap";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "EN_DAC1";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "PP: DAC1";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "EN_DAC2";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "PP: DAC2";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "DAC1 code";
     Register cont = {10, msb2lsb, false, {256}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "DAC2 code";
     Register cont = {10, msb2lsb, false, {256}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "EN_High Gain OTAq";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "PP: High Gain OTAq";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "EN_Low Gain OTAq";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "PP: Low Gain OTAq";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "EN_Probe OTAq";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "PP: Probe OTAq";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "Testb_Otaq";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "EN_Val_Evt receiver";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "PP: Val_Evt receiver";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "EN_Raz_Chn receiver";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "PP: Raz Chn receiver";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "EN_out_deg";
     Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "EN_OR32";
     Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "EN_NOR32_oc";
     Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "Trigger Polarity";
     Register cont = {1, lsb2msb, false,  {m_reg_alias["Disable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "EN_NOR32T_oc";
     Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
   {
     const std::string name = "EN_32 triggers";
     Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
-    m_screg_map.insert(std::make_pair(name, cont));
-    m_screg_order.push_back(name);
+    m_screg2_map.insert(std::make_pair(name, cont));
   }
 
+  //Register for CITIROC3
+  {
+    const std::string name = "Channel 0 to 31 4-bit_t";
+    Register cont = {4, lsb2msb, false, 
+		     {
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0
+		     }};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Channel 0 to 31 4-bit";
+    Register cont = {4, lsb2msb, false, 
+		     {
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0
+		     }};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_discri";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Discriminator";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "RS_or_discri";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["trigger"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_discri_t";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Discriminator_t";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "4b_dac";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: 4b_dac";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "4b_dac_t";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: 4b_dac_t";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Discriminator Mask";
+    Register cont = {1, lsb2msb, true, 
+		     {
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0
+		     }};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: HG T&H(Widlar SCA)";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_HG_T&H(Widlar SCA)";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: LG T&H(Widlar SCA)";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_LG_T&H(Widlar SCA)";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "SCA bias";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["weakbias"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: HG Pdet";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_HG_Pdet";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: LG Pdet";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_LG_Pdet";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Sel SCA or PeakD HG";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["SCA"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Sel SCA or PeakD LG";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["SCA"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "bypass PSC";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Sel Trig Ext PSC";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Fast Shapers Follower";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_Fast Shaper";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Fast Shaper";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Low Gain Slow Shaper";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "En_Low_Gain_Slow Shaper";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Time Constant LG Shaper";
+    Register cont = {3, lsb2msb, true,  {m_reg_alias["12.5ns"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: High Gain Slow Shaper";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "En_High_Gain_Slow Shaper";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Time Constant HG Shaper";
+    Register cont = {3, lsb2msb, true,  {m_reg_alias["12.5ns"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "LG PA bias";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["weakbias"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: High Gain PreAmplifier";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_High_Gain_PA";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Low Gain PreAmplifier";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_Low_Gain_PA";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Fast Shaper on LG";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["HG"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_input_dac";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "8-bit DAC reference";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["4.5V"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Input 8-bit DAC";
+    Register cont = {9, msb2lsb, false,
+		     //    Register cont = {9, lsb2msb, false, 
+		     {
+		       1, 1, 1, 1, 1, 1, 1, 1,
+		       1, 1, 1, 1, 1, 1, 1, 1,
+		       1, 1, 1, 1, 1, 1, 1, 1,
+		       1, 1, 1, 1, 1, 1, 1, 1
+		     }};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PreAMP";
+    Register cont = {15, msb2lsb, false, 
+		     {
+		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
+		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
+		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
+		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680
+		     }};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Temp";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_Temp";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: BandGap";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_BandGap";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_DAC1";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: DAC1";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_DAC2";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: DAC2";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "DAC1 code";
+    Register cont = {10, msb2lsb, false, {256}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "DAC2 code";
+    Register cont = {10, msb2lsb, false, {256}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_High Gain OTAq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: High Gain OTAq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_Low Gain OTAq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Low Gain OTAq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_Probe OTAq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Probe OTAq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Testb_Otaq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_Val_Evt receiver";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Val_Evt receiver";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_Raz_Chn receiver";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Raz Chn receiver";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_out_deg";
+    Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_OR32";
+    Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_NOR32_oc";
+    Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Trigger Polarity";
+    Register cont = {1, lsb2msb, false,  {m_reg_alias["Disable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_NOR32T_oc";
+    Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_32 triggers";
+    Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
+    m_screg3_map.insert(std::make_pair(name, cont));
+  }
+  
+  //Register for CITIROC4
+  {
+    const std::string name = "Channel 0 to 31 4-bit_t";
+    Register cont = {4, lsb2msb, false, 
+		     {
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0
+		     }};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Channel 0 to 31 4-bit";
+    Register cont = {4, lsb2msb, false, 
+		     {
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0
+		     }};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_discri";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Discriminator";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "RS_or_discri";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["trigger"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_discri_t";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Discriminator_t";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "4b_dac";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: 4b_dac";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "4b_dac_t";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: 4b_dac_t";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Discriminator Mask";
+    Register cont = {1, lsb2msb, true, 
+		     {
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0,
+		       0, 0, 0, 0, 0, 0, 0, 0
+		     }};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: HG T&H(Widlar SCA)";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_HG_T&H(Widlar SCA)";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: LG T&H(Widlar SCA)";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_LG_T&H(Widlar SCA)";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "SCA bias";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["weakbias"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: HG Pdet";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_HG_Pdet";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: LG Pdet";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_LG_Pdet";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Sel SCA or PeakD HG";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["SCA"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Sel SCA or PeakD LG";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["SCA"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "bypass PSC";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Sel Trig Ext PSC";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Fast Shapers Follower";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_Fast Shaper";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Fast Shaper";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Low Gain Slow Shaper";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "En_Low_Gain_Slow Shaper";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Time Constant LG Shaper";
+    Register cont = {3, lsb2msb, true,  {m_reg_alias["12.5ns"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: High Gain Slow Shaper";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "En_High_Gain_Slow Shaper";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Time Constant HG Shaper";
+    Register cont = {3, lsb2msb, true,  {m_reg_alias["12.5ns"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "LG PA bias";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["weakbias"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: High Gain PreAmplifier";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_High_Gain_PA";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Low Gain PreAmplifier";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_Low_Gain_PA";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Fast Shaper on LG";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["HG"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_input_dac";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "8-bit DAC reference";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["4.5V"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Input 8-bit DAC";
+    Register cont = {9, msb2lsb, false,
+		     //    Register cont = {9, lsb2msb, false, 
+		     {
+		       1, 1, 1, 1, 1, 1, 1, 1,
+		       1, 1, 1, 1, 1, 1, 1, 1,
+		       1, 1, 1, 1, 1, 1, 1, 1,
+		       1, 1, 1, 1, 1, 1, 1, 1
+		     }};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PreAMP";
+    Register cont = {15, msb2lsb, false, 
+		     {
+		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
+		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
+		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
+		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680
+		     }};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Temp";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_Temp";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: BandGap";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_BandGap";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_DAC1";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: DAC1";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_DAC2";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: DAC2";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "DAC1 code";
+    Register cont = {10, msb2lsb, false, {256}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "DAC2 code";
+    Register cont = {10, msb2lsb, false, {256}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_High Gain OTAq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: High Gain OTAq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_Low Gain OTAq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Low Gain OTAq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_Probe OTAq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Probe OTAq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Testb_Otaq";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_Val_Evt receiver";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Val_Evt receiver";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_Raz_Chn receiver";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "PP: Raz Chn receiver";
+    Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_out_deg";
+    Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_OR32";
+    Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_NOR32_oc";
+    Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "Trigger Polarity";
+    Register cont = {1, lsb2msb, false,  {m_reg_alias["Disable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_NOR32T_oc";
+    Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+
+  {
+    const std::string name = "EN_32 triggers";
+    Register cont = {1, lsb2msb, false,  {m_reg_alias["Enable"]}};
+    m_screg4_map.insert(std::make_pair(name, cont));
+  }
+  
 }
 
 // -----------------------------------------------------------------------
@@ -1054,7 +2575,7 @@ configLoader::read_YAML( const std::string& filename)
   }
 
   enum modeYAML{
-    is_citiroc1, is_module
+    is_citiroc1, is_citiroc2, is_citiroc3, is_citiroc4, is_module
   } present_mode = is_module;
 
   enum typeYAML{
@@ -1079,8 +2600,14 @@ configLoader::read_YAML( const std::string& filename)
     std::stringstream line_to_word(line);
     if(line[0] != ' ' && line[0] != '-'){
       getline(line_to_word, present_key, ':');
-      if(present_key == "CITIROC"){
+      if(present_key == "CITIROC1"){
 	present_mode = is_citiroc1;
+      }else if(present_key == "CITIROC2"){
+	present_mode = is_citiroc2;
+      }else if(present_key == "CITIROC3"){
+	present_mode = is_citiroc3;
+      }else if(present_key == "CITIROC4"){
+	present_mode = is_citiroc4;
       }else{
 	present_mode = is_module;
       }
@@ -1116,8 +2643,11 @@ configLoader::read_YAML( const std::string& filename)
       line_to_reg >> present_reg;
     }
 
-    auto itr = present_mode == is_module ? 
-      m_otherreg_map.find(present_key) : m_screg_map.find(present_key);
+    auto itr = (present_mode == is_module)   ? m_otherreg_map.find(present_key) :
+               (present_mode == is_citiroc1) ? m_screg1_map.find(present_key) :
+               (present_mode == is_citiroc2) ? m_screg2_map.find(present_key) :
+               (present_mode == is_citiroc3) ? m_screg3_map.find(present_key) :
+	                                       m_screg4_map.find(present_key);
     
     if(present_mode == is_citiroc1){
 #if DEBUG
@@ -1127,7 +2657,52 @@ configLoader::read_YAML( const std::string& filename)
 		<< std::endl;
 #endif
 
-      if(itr == m_screg_map.end()){
+      if(itr == m_screg1_map.end()){
+	std::cerr << "#E: " << func_name
+		  << " No such key (" << present_key << ")"
+		  << std::endl;	
+	
+	return -1;
+      }
+    }else if(present_mode == is_citiroc2){
+#if DEBUG
+      std::cout << "CITIROC2::" 
+		<< present_key << "::" 
+		<< present_reg << " (" << present_index << ")"
+		<< std::endl;
+#endif
+
+      if(itr == m_screg2_map.end()){
+	std::cerr << "#E: " << func_name
+		  << " No such key (" << present_key << ")"
+		  << std::endl;	
+	
+	return -1;
+      }
+    }else if(present_mode == is_citiroc3){
+#if DEBUG
+      std::cout << "CITIROC3::" 
+		<< present_key << "::" 
+		<< present_reg << " (" << present_index << ")"
+		<< std::endl;
+#endif
+
+      if(itr == m_screg3_map.end()){
+	std::cerr << "#E: " << func_name
+		  << " No such key (" << present_key << ")"
+		  << std::endl;	
+	
+	return -1;
+      }
+    }else if(present_mode == is_citiroc4){
+#if DEBUG
+      std::cout << "CITIROC4::" 
+		<< present_key << "::" 
+		<< present_reg << " (" << present_index << ")"
+		<< std::endl;
+#endif
+
+      if(itr == m_screg4_map.end()){
 	std::cerr << "#E: " << func_name
 		  << " No such key (" << present_key << ")"
 		  << std::endl;	
@@ -1170,6 +2745,26 @@ configLoader::read_YAML( const std::string& filename)
 	for(int32_t i = 0; i<kCh; ++i){
 	  cont.reg[i] = (val << shift) | (cont.reg[i] & mask);
 	}
+      // }else if(present_reg.substr(0, 6) == "TestHG"){
+      // 	const int32_t shift = 2;
+      // 	const int32_t mask  = 0x7FFF;
+      // 	const int32_t kCh   = 32;
+	
+      // 	for(int32_t i = 0; i<kCh; ++i){
+      // 	  cont.reg[i] = (1 << shift) | (cont.reg[i] & mask);
+      // 	  std::cout << "TestHG" << (1 << shift) << std::endl;
+      // 	  std::cout << "Register" << (cont.reg[i] & mask) << std::endl;
+      // 	}
+      // }else if(present_reg.substr(0, 6) == "TestLG"){
+      // 	const int32_t shift = 1;
+      // 	const int32_t mask  = 0x7FFF;
+      // 	const int32_t kCh   = 32;
+	
+      // 	for(int32_t i = 0; i<kCh; ++i){
+      // 	  cont.reg[i] = (1 << shift) | (cont.reg[i] & mask);
+      // 	  std::cout << "TestLG" << (1 << shift) << std::endl;
+      // 	  std::cout << "Register" << (cont.reg[i] & mask) << std::endl;
+      // 	}
       }else{
 	cont.reg[present_index] = val;
       }
@@ -1178,15 +2773,18 @@ configLoader::read_YAML( const std::string& filename)
       uint32_t val = 0;
       std::stringstream reg_to_val(present_reg);
 
-      if(present_key == "High Gain Channel"){
-	uint32_t reg_ch = 0;
-	reg_to_val >> reg_ch;
-	int channel = static_cast<int>(reg_ch);
-        int quotient = channel/8;
-	int surplus = channel%8;
-	int index = 8*quotient - surplus +7;
-	val = static_cast<uint32_t>(1<<index);
-      }else if(present_key == "Input 8-bit DAC"){
+      // if(present_key == "High Gain Channel"){
+      // 	uint32_t reg_ch = 0;
+      // 	reg_to_val >> reg_ch;
+      // 	int channel = static_cast<int>(reg_ch);
+      //   int quotient = channel/8;
+      // 	int surplus = channel%8;
+      // 	int index = 8*quotient - surplus +7;
+      // 	std::cout << "index : " << index << std::endl;
+      // 	val = static_cast<uint32_t>(1<<index);
+      // 	std::cout << "val : " << val << std::endl;
+      // }else if(present_key == "Input 8-bit DAC"){
+      if(present_key == "Input 8-bit DAC"){
 	uint32_t idac_onoff = cont.reg[present_index] & 0x1;
 	reg_to_val >> val;
 	val = (val << 1) | idac_onoff;
@@ -1195,6 +2793,10 @@ configLoader::read_YAML( const std::string& filename)
       }
 
       cont.reg[present_index] = val;
+      if(present_key == "High Gain Channel"){
+	std::cout << "#D: Present mode : " << present_mode << std::endl;
+	std::cout << "#D: High Gain Channel : " << cont.reg[present_index] << std::endl;
+      }
     }
       
     if(present_type == is_array) ++present_index;

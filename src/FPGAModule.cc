@@ -2,6 +2,8 @@
 #include"UDPRBCP.hh"
 #include<iostream>
 
+// #define UDP_off 1
+
 namespace HUL{
 
 // Constructor/Destructor --------------------------------------------------
@@ -83,14 +85,18 @@ FPGAModule::WriteModule_nByte(const uint32_t module_id,
     = ((module_id & kModuleIdMask) << kModuleIdShift)
     + ((local_address & kAddressMask) << kAddressShift);
 
+  int32_t ret = 0;
+
+#ifndef UDP_off
+  // udp_rbcp_.SetDispMode(RBCP::UDPRBCP::kDebug);
   udp_rbcp_.SetWD(udp_addr, n_byte, write_data);
 
-  int32_t ret = 0;
   if( 0 > (ret = udp_rbcp_.DoRBCP())){
       std::cout << "#E :FPGAModule::WriteModule_nByte, Write error " << ret 
 		<< std::endl;
   }
-
+#endif
+  
   return ret;
 }
 
@@ -106,10 +112,13 @@ FPGAModule::ReadModule_nByte(const uint32_t module_id,
     = ((module_id & kModuleIdMask) << kModuleIdShift)
     + ((local_address & kAddressMask) << kAddressShift);
 
-  udp_rbcp_.SetRD(udp_addr, n_byte);
-  int32_t ret = 0;;
-  if((ret = udp_rbcp_.DoRBCP()) > -1){ udp_rbcp_.CopyRD(rd_data_); }
+  int32_t ret = 0;
 
+#ifndef UDP_off
+  udp_rbcp_.SetRD(udp_addr, n_byte);
+  if((ret = udp_rbcp_.DoRBCP()) > -1){ udp_rbcp_.CopyRD(rd_data_); }
+#endif
+  
   return ret;
 }
 };
