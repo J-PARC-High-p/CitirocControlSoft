@@ -3,8 +3,11 @@ CITIROC1:
   PreAMP: LGCf_200fF
   Time Constant HG Shaper: 50.0ns
   Time Constant LG Shaper: 50.0ns
+  SCA bias: highbias
+  bypass PSC: Enable
+  Sel Trig Ext PSC: Enable
   DAC1 code: 1000
-  DAC2 code: 205
+  DAC2 code: 250
   8-bit DAC reference: 2.5V
   EN_LG_T&H(Widlar SCA): Enable
   EN_LG_Pdet: Enable
@@ -18,8 +21,11 @@ CITIROC2:
   PreAMP: LGCf_200fF
   Time Constant HG Shaper: 50.0ns
   Time Constant LG Shaper: 50.0ns
+  SCA bias: highbias
+  bypass PSC: Enable
+  Sel Trig Ext PSC: Enable
   DAC1 code: 1000
-  DAC2 code: 900
+  DAC2 code: 250
   8-bit DAC reference: 2.5V
   EN_LG_T&H(Widlar SCA): Enable
   EN_LG_Pdet: Enable
@@ -33,6 +39,9 @@ CITIROC3:
   PreAMP: LGCf_200fF
   Time Constant HG Shaper: 50.0ns
   Time Constant LG Shaper: 50.0ns
+  SCA bias: highbias
+  bypass PSC: Enable
+  Sel Trig Ext PSC: Enable
   DAC1 code: 1000
   DAC2 code: 900
   8-bit DAC reference: 2.5V
@@ -48,6 +57,9 @@ CITIROC4:
   PreAMP: LGCf_200fF
   Time Constant HG Shaper: 50.0ns
   Time Constant LG Shaper: 50.0ns
+  SCA bias: highbias
+  bypass PSC: Enable
+  Sel Trig Ext PSC: Enable
   DAC1 code: 1000
   DAC2 code: 900
   8-bit DAC reference: 2.5V
@@ -58,8 +70,8 @@ CITIROC4:
   LG PA bias: weakbias
   EN_Low_Gain_PA: Enable
   EN_Probe OTAq: Enable
-High Gain Channel: 15
-Probe Channel: 15
-Probe: Out_fs
+High Gain Channel: 32
+Probe Channel: 32
+Probe: Out_ssh_HG
 Analog Mux: Mux_HG
 Probe Mux: 1
