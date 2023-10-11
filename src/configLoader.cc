@@ -99,6 +99,7 @@ configLoader::copy_probereg()
   }
 
   m_bit_rbcp.resize(256*n_citiroc);
+  printf("reg_size : %d\n",(int)m_bit_rbcp.size());
   for(auto itr = m_bit_rbcp.begin(); itr != m_bit_rbcp.end(); ++itr){
     *itr = false;
   }
@@ -952,7 +953,7 @@ configLoader::initialize_slowcontrol_register()
     Register cont = {15, msb2lsb, false, 
 		     {
 		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
-		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30686,
+		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
 		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
 		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680
 		     }};
@@ -1437,7 +1438,7 @@ configLoader::initialize_slowcontrol_register()
     const std::string name = "PreAMP";
     Register cont = {15, msb2lsb, false, 
 		     {
-		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
+		       30686, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
 		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
 		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680,
 		       30680, 30680, 30680, 30680, 30680, 30680, 30680, 30680
