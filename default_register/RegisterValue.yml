@@ -6,8 +6,8 @@ CITIROC1:
   SCA bias: highbias
   bypass PSC: Enable
   Sel Trig Ext PSC: Enable
-  DAC1 code: 100
-  DAC2 code: 250
+  DAC1 code: 1000
+  DAC2 code: 523
   8-bit DAC reference: 2.5V
   EN_LG_T&H(Widlar SCA): Enable
   EN_LG_Pdet: Enable
@@ -25,7 +25,7 @@ CITIROC2:
   bypass PSC: Enable
   Sel Trig Ext PSC: Enable
   DAC1 code: 1000
-  DAC2 code: 205
+  DAC2 code: 523
   8-bit DAC reference: 2.5V
   EN_LG_T&H(Widlar SCA): Enable
   EN_LG_Pdet: Enable
@@ -43,7 +43,7 @@ CITIROC3:
   bypass PSC: Enable
   Sel Trig Ext PSC: Enable
   DAC1 code: 1000
-  DAC2 code: 900
+  DAC2 code: 523
   8-bit DAC reference: 2.5V
   EN_LG_T&H(Widlar SCA): Enable
   EN_LG_Pdet: Enable
@@ -61,7 +61,7 @@ CITIROC4:
   bypass PSC: Enable
   Sel Trig Ext PSC: Enable
   DAC1 code: 1000
-  DAC2 code: 900
+  DAC2 code: 523
   8-bit DAC reference: 2.5V
   EN_LG_T&H(Widlar SCA): Enable
   EN_LG_Pdet: Enable
@@ -70,7 +70,7 @@ CITIROC4:
   LG PA bias: weakbias
   EN_Low_Gain_PA: Enable
   EN_Probe OTAq: Enable
-High Gain Channel: 32
+High Gain Channel: 1
 Probe Channel: 32
 Probe: Out_fs
 Analog Mux: Mux_HG
