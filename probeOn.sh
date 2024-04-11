@@ -1,0 +1,1 @@
+./femcitiroc_control -ip=192.168.2.1${1} -yaml=/home/okarin/cirasame/CIRASAME_calib/yaml_files/cirasame0${1}/InputDAC.yml -yaml=/home/okarin/cirasame/CIRASAME_calib/yaml_files/cirasame0${1}/RegisterValue.yml -yaml=/home/okarin/cirasame/CIRASAME_calib/yaml_files/cirasame0${1}/DiscriMask.yml -sc -read -probe
