@@ -2786,7 +2786,7 @@ configLoader::read_YAML( const std::string& filename)
       // 	std::cout << "val : " << val << std::endl;
       // }else if(present_key == "Input 8-bit DAC"){
       if(present_key == "Input 8-bit DAC"){
-	uint32_t idac_onoff = cont.reg[present_index] & 0x1;
+	uint32_t idac_onoff = 1;
 	reg_to_val >> val;
 	val = (val << 1) | idac_onoff;
       }else{
