@@ -1804,7 +1804,7 @@ configLoader::initialize_slowcontrol_register()
   {
     const std::string name = "En_Low_Gain_Slow Shaper";
     Register cont = {1, lsb2msb, false, {m_reg_alias["Disable"]}};
-    m_screg3_map.insert(std::make_paqir(name, cont));
+    m_screg3_map.insert(std::make_pair(name, cont));
   }
 
   {
