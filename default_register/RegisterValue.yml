@@ -1,77 +1,48 @@
 CITIROC1:
-  PreAMP: HGCf_200fF
-  PreAMP: LGCf_200fF
+  PreAMP_HG: HGCf_400fF
+  PreAMP_LG: LGCf_400fF
   Time Constant HG Shaper: 50.0ns
   Time Constant LG Shaper: 50.0ns
-  SCA bias: highbias
-  bypass PSC: Enable
-  Sel Trig Ext PSC: Enable
-  DAC1 code: 100
+  DAC1 code: 1000
   DAC2 code: 250
-  8-bit DAC reference: 2.5V
-  EN_LG_T&H(Widlar SCA): Enable
-  EN_LG_Pdet: Enable
-  En_Low_Gain_Slow Shaper: Enable
-  En_High_Gain_Slow Shaper: Enable
   LG PA bias: weakbias
-  EN_Low_Gain_PA: Enable
-  EN_Probe OTAq: Enable
+  EN_Low_Gain_PA: Disable
+  EN_High_Gain_PA: Enable
+  Fast Shaper on LG: HG
 CITIROC2:
-  PreAMP: HGCf_200fF
-  PreAMP: LGCf_200fF
+  PreAMP_HG: HGCf_400fF
+  PreAMP_LG: LGCf_400fF
   Time Constant HG Shaper: 50.0ns
   Time Constant LG Shaper: 50.0ns
-  SCA bias: highbias
-  bypass PSC: Enable
-  Sel Trig Ext PSC: Enable
   DAC1 code: 1000
-  DAC2 code: 205
-  8-bit DAC reference: 2.5V
-  EN_LG_T&H(Widlar SCA): Enable
-  EN_LG_Pdet: Enable
-  En_Low_Gain_Slow Shaper: Enable
-  En_High_Gain_Slow Shaper: Enable
+  DAC2 code: 250
   LG PA bias: weakbias
-  EN_Low_Gain_PA: Enable
-  EN_Probe OTAq: Enable
+  EN_Low_Gain_PA: Disable
+  EN_High_Gain_PA: Enable
+  Fast Shaper on LG: HG
 CITIROC3:
-  PreAMP: HGCf_200fF
-  PreAMP: LGCf_200fF
+  PreAMP_HG: HGCf_400fF
+  PreAMP_LG: LGCf_400fF
   Time Constant HG Shaper: 50.0ns
   Time Constant LG Shaper: 50.0ns
-  SCA bias: highbias
-  bypass PSC: Enable
-  Sel Trig Ext PSC: Enable
   DAC1 code: 1000
-  DAC2 code: 900
-  8-bit DAC reference: 2.5V
-  EN_LG_T&H(Widlar SCA): Enable
-  EN_LG_Pdet: Enable
-  En_Low_Gain_Slow Shaper: Enable
-  En_High_Gain_Slow Shaper: Enable
+  DAC2 code: 250
   LG PA bias: weakbias
-  EN_Low_Gain_PA: Enable
-  EN_Probe OTAq: Enable
+  EN_Low_Gain_PA: Disable
+  EN_High_Gain_PA: Enable
+  Fast Shaper on LG: HG
 CITIROC4:
-  PreAMP: HGCf_200fF
-  PreAMP: LGCf_200fF
+  PreAMP_HG: HGCf_400fF
+  PreAMP_LG: LGCf_400fF
   Time Constant HG Shaper: 50.0ns
   Time Constant LG Shaper: 50.0ns
-  SCA bias: highbias
-  bypass PSC: Enable
-  Sel Trig Ext PSC: Enable
   DAC1 code: 1000
-  DAC2 code: 900
-  8-bit DAC reference: 2.5V
-  EN_LG_T&H(Widlar SCA): Enable
-  EN_LG_Pdet: Enable
-  En_Low_Gain_Slow Shaper: Enable
-  En_High_Gain_Slow Shaper: Enable
+  DAC2 code: 250
   LG PA bias: weakbias
-  EN_Low_Gain_PA: Enable
-  EN_Probe OTAq: Enable
+  EN_Low_Gain_PA: Disable
+  EN_High_Gain_PA: Enable
+  Fast Shaper on LG: HG
 High Gain Channel: 32
 Probe Channel: 32
 Probe: Out_fs
-Analog Mux: Mux_HG
 Probe Mux: 2
