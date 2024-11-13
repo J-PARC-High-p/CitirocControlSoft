@@ -2632,6 +2632,9 @@ configLoader::read_YAML( const std::string& filename)
       
       present_key = words[0];
       if(words.size() == 1 || words[1][0] == '#') continue;
+      if(present_key == "PreAMP_HG" || present_key == "PreAMP_LG"){
+	present_key = "PreAMP";
+      }
       
       std::stringstream word_to_reg(words[1]);
       word_to_reg >> present_reg;

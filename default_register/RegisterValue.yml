@@ -1,6 +1,6 @@
 CITIROC1:
-  PreAMP: HGCf_400fF
-  PreAMP: LGCf_400fF
+  PreAMP_HG: HGCf_400fF
+  PreAMP_LG: LGCf_400fF
   Time Constant HG Shaper: 50.0ns
   Time Constant LG Shaper: 50.0ns
   DAC1 code: 1000
@@ -10,8 +10,8 @@ CITIROC1:
   EN_High_Gain_PA: Enable
   Fast Shaper on LG: HG
 CITIROC2:
-  PreAMP: HGCf_400fF
-  PreAMP: LGCf_400fF
+  PreAMP_HG: HGCf_400fF
+  PreAMP_LG: LGCf_400fF
   Time Constant HG Shaper: 50.0ns
   Time Constant LG Shaper: 50.0ns
   DAC1 code: 1000
@@ -21,8 +21,8 @@ CITIROC2:
   EN_High_Gain_PA: Enable
   Fast Shaper on LG: HG
 CITIROC3:
-  PreAMP: HGCf_400fF
-  PreAMP: LGCf_400fF
+  PreAMP_HG: HGCf_400fF
+  PreAMP_LG: LGCf_400fF
   Time Constant HG Shaper: 50.0ns
   Time Constant LG Shaper: 50.0ns
   DAC1 code: 1000
@@ -32,8 +32,8 @@ CITIROC3:
   EN_High_Gain_PA: Enable
   Fast Shaper on LG: HG
 CITIROC4:
-  PreAMP: HGCf_400fF
-  PreAMP: LGCf_400fF
+  PreAMP_HG: HGCf_400fF
+  PreAMP_LG: LGCf_400fF
   Time Constant HG Shaper: 50.0ns
   Time Constant LG Shaper: 50.0ns
   DAC1 code: 1000
