@@ -94,12 +94,12 @@ resetSlowControl(const std::string& ip)
   sendDirectControl(ip);
 
   reg_citiroc_pin.reset( kRstbSr );
-  // reg_citiroc_pin.reset( kResetbPA );
+  reg_citiroc_pin.reset( kResetbPA );
   // reg_citiroc_pin.reset( kRstbPSC );
   sendDirectControl(ip);
  
   reg_citiroc_pin.set( kRstbSr );
-  // reg_citiroc_pin.set( kResetbPA );
+  reg_citiroc_pin.set( kResetbPA );
   // reg_citiroc_pin.set( kRstbPSC );
   sendDirectControl(ip);
 }
@@ -213,7 +213,7 @@ sendReadRegister(const std::string& ip)
   femcitiroc::regRbcpType reg = g_conf.copy_readreg();
 
   reg_module.set( kSelectRead );
-  // resetReadRegister(ip);
+  //resetReadRegister(ip);
 
   int mux_analog = g_conf.get_mux_analog();
 
@@ -273,7 +273,7 @@ sendSlowControl(const std::string& ip)
   femcitiroc::regRbcpType reg_citiroc[n_citiroc + 1];
 
   reg_citiroc_pin.set( kSelectSc );
-  // resetSlowControl(ip);
+  resetSlowControl(ip);
   
   for(int i_citiroc = n_citiroc; i_citiroc > 0; i_citiroc--){
     reg_citiroc[i_citiroc] = g_conf.copy_screg(i_citiroc);

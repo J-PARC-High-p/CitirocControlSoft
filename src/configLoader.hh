@@ -1,5 +1,6 @@
 #ifndef FEMCITI_CONF_REG_H_
 #define FEMCITI_CONF_REG_H_
+#define CXX14 0
 
 #include<unistd.h>
 #include<vector>
@@ -32,6 +33,7 @@ namespace femcitiroc
   {
   public:
     configLoader();
+    ~configLoader();
 
     regRbcpType copy_probereg();
     regRbcpType copy_probereg_null();
