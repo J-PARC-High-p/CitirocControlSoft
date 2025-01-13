@@ -198,7 +198,7 @@ sendProbeRegisterSub(const std::string& ip,
   reg_module.set( kStartCycle );
   sendDirectControl(ip);
 
-  sleep(1);
+  usleep(10000);
 
   reg_module.reset( kStartCycle );
   sendDirectControl(ip);
@@ -259,7 +259,7 @@ sendReadRegisterSub(const std::string& ip,
   reg_module.set( kStartCycle );
   sendDirectControl(ip);
 
-  sleep(1);
+  usleep(10000);
 
   reg_module.reset( kStartCycle );
   sendDirectControl(ip);
@@ -319,7 +319,7 @@ sendSlowControlSub(const std::string& ip,
   reg_module.set( kStartCycle );
   sendDirectControl(ip);
 
-  sleep(1);
+  usleep(10000);
 
   reg_citiroc_pin.set( kLoadSc );
   reg_module.reset( kStartCycle );

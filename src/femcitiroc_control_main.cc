@@ -17,6 +17,7 @@ namespace{
       "-sc", "-read", "-probe", "-all",
       "-probe-off",
       "-q",
+      "-debug",
       "bad-option"
     };
 
@@ -32,6 +33,7 @@ namespace{
   std::bitset<sizeCommand> exec_list;
 
   bool quiet = false;
+  bool debug = false;
 }
 
 // __________________________________________________________________________
@@ -59,6 +61,8 @@ int main(int argc, char* argv[])
     std::cout << "   Reset probe registers\n";
     std::cout << " -q\n";
     std::cout << "   Quiet. Hide all the message.\n";
+    std::cout << " -debug\n";
+    std::cout << "   Only parse configuration files, and do not send registers.\n";
     std::cout << std::endl;
     return -1;
   }
@@ -97,14 +101,16 @@ int main(int argc, char* argv[])
   femcitiroc::configLoader& g_conf = femcitiroc::configLoader::get_instance();
   for(unsigned int i = 0; i<yaml_list.size(); ++i) g_conf.read_YAML(yaml_list[i]);
 
-  resetDirectControl(ip);
-  if(exec_list[i_sc])    sendSlowControl(ip);
-  if(exec_list[i_probe]) sendProbeRegister(ip);
-  if(exec_list[i_read]){
-    resetReadRegister(ip);
-    sendReadRegister(ip);
+  if(debug == false){
+    resetDirectControl(ip);
+    if(exec_list[i_sc])    sendSlowControl(ip);
+    if(exec_list[i_probe]) sendProbeRegister(ip);
+    if(exec_list[i_read]){
+      resetReadRegister(ip);
+      sendReadRegister(ip);
+    }
+    if(exec_list[i_probe_off]) resetProbeRegister(ip);
   }
-  if(exec_list[i_probe_off]) resetProbeRegister(ip);
   
   return 0;
 }
@@ -127,6 +133,7 @@ int parse_option(std::vector<std::string>& arg)
 	if( ref == "-ip=")   ip = option;
 	if( ref == "-yaml=") yaml_list.push_back(option);
 
+
 	break;
       }else if(arg[i] == opt_ref[j]){
 	if( arg[i] == "-sc")    exec_list.set( i_sc    );
@@ -136,6 +143,7 @@ int parse_option(std::vector<std::string>& arg)
 	if( arg[i] == "-probe-off") exec_list.set( i_probe_off );
 
 	if( arg[i] == "-q")     quiet = true;
+	if( arg[i] == "-debug") debug = true;
 
 	break;
       }// find
