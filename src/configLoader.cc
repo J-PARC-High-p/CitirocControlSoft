@@ -21,6 +21,19 @@ configLoader::configLoader()
   initialize_other_register();
 }
 
+configLoader::~configLoader()
+{
+  m_reg_alias.clear();
+  m_screg1_map.clear();
+  m_screg2_map.clear();
+  m_screg3_map.clear();
+  m_screg4_map.clear();
+  m_screg_order.clear();
+  m_otherreg_map.clear();
+  m_bit_rbcp.clear();
+  m_reg_rbcp.clear();
+}
+
 // -----------------------------------------------------------------------
 regRbcpType
 configLoader::copy_probereg()
@@ -2789,6 +2802,7 @@ configLoader::read_YAML( const std::string& filename)
       // 	std::cout << "val : " << val << std::endl;
       // }else if(present_key == "Input 8-bit DAC"){
       if(present_key == "Input 8-bit DAC"){
+	//uint32_t idac_onoff = cont.reg[present_index] & 0x1;
 	uint32_t idac_onoff = 1;
 	reg_to_val >> val;
 	val = (val << 1) | idac_onoff;
